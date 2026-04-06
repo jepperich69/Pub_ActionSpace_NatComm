@@ -28,17 +28,22 @@ cat("\n=== STEP 2: Action-Space KDE & Differences ===\n")
 # -------------------------------------------------------------------
 # 0) Parameters & output directory
 # -------------------------------------------------------------------
-#output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/results wd"
-output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/Paper Results Baseline"
-#output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/Paper Results Sex1"
-#output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/Paper Results Sex2"
-#output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/Paper Results City 10000"
-#output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/Paper Results City 25000"
-#output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/Paper Results City 50000"
-#output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/Paper Results City 100000"
+# Parameters can be pre-set by a wrapper script (e.g. step2_run_bw3.R)
+# before sourcing this file. If not set, defaults are used.
 
-
-
+# Default output directory (Baseline scenario):
+if (!exists("output_dir")) {
+  output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_ActionSpace_NatComm/Paper Results Baseline"
+  # Other scenarios (uncomment as needed, or set in wrapper script):
+  # output_dir <- ".../Paper Results Sex1"
+  # output_dir <- ".../Paper Results Sex2"
+  # output_dir <- ".../Paper Results City 10000"
+  # output_dir <- ".../Paper Results City 25000"
+  # output_dir <- ".../Paper Results City 50000"
+  # output_dir <- ".../Paper Results City 100000"
+  # output_dir <- ".../Paper Results BW3"
+  # output_dir <- ".../Paper Results BW7"
+}
 
 # Ensure directory exists and has a trailing slash
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -49,7 +54,7 @@ R_MAX <- 60        # km (radial distance grid max)
 N_T   <- 96        # time bins (24h * 4 = 15-min bins)
 N_D   <- 96        # distance bins
 H_T   <- 1         # hours bandwidth
-H_D   <- 5         # km bandwidth (away only)
+if (!exists("H_D")) H_D <- 5  # km bandwidth (away only) — override in wrapper scripts
 MAX_PER_GROUP <- 120000   # cap for runtime (weighted subsample if larger)
 HOME_ZERO_CUTOFF <- 0.02  # km: <= this is "home" (tight to avoid losing short trips)
 dt <- 24 / N_T
@@ -71,7 +76,7 @@ age_groups <- c("10-17", "18-30", "31-55", "56-65", "66+")
 # -------------------------------------------------------------------
 # 1) Load data (keep 2007+ only)
 # -------------------------------------------------------------------
-dbname <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Population synthesis Vianey/TU0624v1.accdb"
+dbname <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_PopulationVianuey_TBA/TU0624v1.accdb"
 con <- RODBC::odbcConnectAccess2007(dbname)
 
 tur <- RODBC::sqlFetch(con, "tur")

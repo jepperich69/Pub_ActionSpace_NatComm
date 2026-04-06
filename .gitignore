@@ -1,11 +1,13 @@
-# Generated outputs — reproducible from the pipeline
-results/
-Rplots.pdf
+# Microdata — never commit
+*.accdb
+*.mdb
 
-# Kernel placeholders (OneDrive cloud stubs — use kernels.zip instead)
-data/kernels/
+# RDS files inside results/ are either kernel copies or reproducible intermediates.
+# The canonical kernel RDS files live in data/kernels/ and are committed there.
+results/**/*.rds
 
 # R session artifacts
+Rplots.pdf
 .Rhistory
 .RData
 .Rproj.user/

@@ -8,7 +8,9 @@ get_scenario_label <- function(scenario) {
     city_10000   = "Cities ≥ 10,000",
     city_25000   = "Cities ≥ 25,000",
     city_50000   = "Cities ≥ 50,000",
-    city_100000  = "Cities ≥ 100,000"
+    city_100000  = "Cities ≥ 100,000",
+    bw3          = "Bandwidth H_D = 3 km",
+    bw7          = "Bandwidth H_D = 7 km"
   )
   
   if (!scenario %in% names(labels)) {
