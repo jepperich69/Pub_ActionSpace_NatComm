@@ -1,0 +1,48 @@
+RUN INSTRUCTIONS
+================
+
+All commands should be executed from the project root directory.
+
+1) OPTIONAL SANITY CHECK
+-----------------------
+Verify that all required kernel inputs are present:
+
+Rscript code/00_validate_inputs.R
+
+2) RUN A SINGLE SCENARIO
+-----------------------
+Example (baseline):
+
+Rscript code/run_one_scenario.R baseline
+
+Other examples:
+Rscript code/run_one_scenario.R sex1
+Rscript code/run_one_scenario.R city_50000
+
+Outputs will be written to:
+results/<scenario>/
+
+3) RUN ALL SCENARIOS
+-------------------
+To reproduce all results for all scenarios:
+
+Rscript code/run_all.R
+
+Each scenario is run in a fresh R session to avoid cross-scenario contamination.
+
+4) OUTPUTS
+----------
+Generated outputs include:
+- Figures (PNG)
+- Tables (CSV)
+- Intermediate artifacts (RDS)
+
+Note: The number of generated outputs exceeds those included in the manuscript.
+This is intentional and provided for transparency and exploratory analysis.
+
+5) EXPECTED RUNTIME
+-------------------
+Baseline scenario: typically minutes.
+All scenarios: longer, depending on system performance.
+
+END OF INSTRUCTIONS

@@ -1,0 +1,16 @@
+# Generated outputs — reproducible from the pipeline
+results/
+Rplots.pdf
+
+# Kernel placeholders (OneDrive cloud stubs — use kernels.zip instead)
+data/kernels/
+
+# R session artifacts
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj.user
+
+# OS
+.DS_Store
+Thumbs.db
