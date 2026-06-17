@@ -9,7 +9,7 @@
 
 This repository contains the analysis code accompanying the manuscript. It reproduces all figures and tables from Step 2B onward using pre-computed kernel density estimation (KDE) artifacts derived from the Danish National Travel Survey (2007–2024).
 
-Raw travel survey microdata are restricted and cannot be shared (Statistics Denmark data agreement). The KDE artifacts provided here are sufficient to reproduce all downstream analyses and figures reported in the paper.
+Raw travel survey microdata are restricted and cannot be shared (Statistics Denmark data agreement). The KDE artifacts provided here are sufficient to reproduce all downstream analyses and figures reported in the paper, including the urban-restriction robustness check, the bootstrap uncertainty fan, and the bandwidth sensitivity analysis.
 
 A fully executable capsule (identical code + data, no setup required) is also available on CodeOcean:  
 [https://codeocean.com/signup/nature?token=1cc9ced764bd4c17b49656707d8d19ee](https://codeocean.com/signup/nature?token=1cc9ced764bd4c17b49656707d8d19ee)
@@ -19,10 +19,9 @@ A fully executable capsule (identical code + data, no setup required) is also av
 ## Repository structure
 
 ```
-code/          R analysis scripts (Steps 2B–6)
-data/
-  kernels.zip  Pre-computed KDE artifacts for all scenarios (unzip before running)
-results/       Generated outputs — created by the pipeline, not tracked in git
+code/          R analysis scripts (Steps 2B–9)
+data/kernels/  Pre-computed KDE artifacts for all scenarios (committed directly, no unzip step)
+results/       Generated outputs (figures, tables, intermediate artifacts)
 Codebase.Rproj RStudio project file
 ```
 
@@ -30,48 +29,55 @@ Codebase.Rproj RStudio project file
 
 ## Scenarios
 
-| Scenario     | Description                        |
-|--------------|------------------------------------|
-| `baseline`   | All individuals                    |
-| `sex1`       | Females                            |
-| `sex2`       | Males                              |
-| `city_10000` | Residents of cities ≥ 10,000       |
-| `city_25000` | Residents of cities ≥ 25,000       |
-| `city_50000` | Residents of cities ≥ 50,000       |
-| `city_100000`| Residents of cities ≥ 100,000      |
+| Scenario       | Description                                  |
+|----------------|-----------------------------------------------|
+| `baseline`     | All individuals, H_D = 5 km (reference)        |
+| `sex1`         | Females                                        |
+| `sex2`         | Males                                          |
+| `city_10000`   | Residents of cities ≥ 10,000                   |
+| `city_25000`   | Residents of cities ≥ 25,000                   |
+| `city_50000`   | Residents of cities ≥ 50,000                   |
+| `city_100000`  | Residents of cities ≥ 100,000                  |
+| `bw3`          | Baseline population, H_D = 3 km bandwidth      |
+| `bw7`          | Baseline population, H_D = 7 km bandwidth      |
+
+`bw3` and `bw7` are used only by `step9_bandwidth_sensitivity.R` to test sensitivity to the KDE distance bandwidth; they are not run through `run_one_scenario.R`.
 
 ---
 
 ## How to run
 
-### 1. Unzip the kernel data
-
-```bash
-cd data
-unzip kernels.zip
-```
-
-This creates `data/kernels/<scenario>/` with the required `.rds` files.
-
-### 2. (Optional) Validate inputs
+### 1. (Optional) Validate inputs
 
 ```r
 Rscript code/00_validate_inputs.R
 ```
 
-### 3. Run a single scenario
+### 2. Run a single scenario (Steps 2B–6)
 
 ```r
 Rscript code/run_one_scenario.R baseline
 ```
 
-### 4. Run all scenarios
+### 3. Run all scenarios
 
 ```r
 Rscript code/run_all.R
 ```
 
 Outputs (PNG figures, CSV tables, intermediate `.rds` files) are written to `results/<scenario>/`.
+
+### 4. Cross-scenario robustness and sensitivity analyses (Steps 7–9)
+
+These run independently of Steps 2B–6, using the per-scenario outputs/kernels directly:
+
+```r
+Rscript code/step7_urban_robustness.R       # SI: settlement-type drift comparison -> results/urban_robustness/
+Rscript code/step8_uncertainty.R            # Main Fig. 6a: bootstrap arrow-fan      -> results/uncertainty/
+Rscript code/step9_bandwidth_sensitivity.R  # SI: bandwidth sensitivity (bw3/bw7)    -> results/bandwidth_sensitivity/
+```
+
+All commands are run from the project root (this directory).
 
 ---
 
@@ -103,12 +109,21 @@ R version used: 4.3.x
 | `step4_integral.R`            | Action-space drift metrics                           |
 | `step5_direction.R`           | Drift vector computation and visualization           |
 | `step6_final_plots.R`         | Path complexity metrics and final summary figures    |
+| `step7_urban_robustness.R`    | Settlement-type drift comparison across city-size scenarios (SI) |
+| `step8_uncertainty.R`         | Bootstrap arrow-fan uncertainty plot (main Fig. 6a)   |
+| `step9_bandwidth_sensitivity.R` | Drift comparison across bw3/baseline/bw7 KDE bandwidths (SI) |
 
 ---
 
 ## Note on output volume
 
 The pipeline generates more figures and tables than are included in the manuscript. This is intentional — additional outputs support robustness checks and exploratory analysis.
+
+---
+
+## License
+
+Code is released under the MIT License (see `LICENSE`). The Danish National Travel Survey microdata underlying the KDE artifacts are not covered by this license and remain subject to the Statistics Denmark data agreement.
 
 ---
 

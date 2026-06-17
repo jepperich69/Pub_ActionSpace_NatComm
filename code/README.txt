@@ -4,9 +4,11 @@ CODE OCEAN CAPSULE README
 Title:
 The Diverging Action-Space: Evolving Rhythms and Changing Habits in Daily Mobility
 
-This capsule reproduces all analyses and figures from Step 2B through Step 6 of the manuscript.
-Restricted raw microdata used in Step 2 are not shared. Instead, this capsule provides derived
-kernel density estimation (KDE) artifacts that are sufficient to reproduce all downstream results.
+This capsule reproduces all analyses and figures from Step 2B through Step 9 of the manuscript,
+including the main-paper bootstrap uncertainty fan (Step 8) and the SI robustness/sensitivity
+checks (Steps 7 and 9). Restricted raw microdata used in Step 2 are not shared. Instead, this
+capsule provides derived kernel density estimation (KDE) artifacts that are sufficient to
+reproduce all downstream results.
 
 IMPORTANT NOTE FOR REVIEWERS
 ----------------------------
@@ -25,13 +27,15 @@ results/<scenario>/        : Generated figures, tables, and intermediate artifac
 
 SCENARIOS
 ---------
-baseline      : All individuals
+baseline      : All individuals, H_D = 5 km (reference)
 sex1          : Females
 sex2          : Males
 city_10000    : Cities >= 10,000 inhabitants
 city_25000    : Cities >= 25,000 inhabitants
 city_50000    : Cities >= 50,000 inhabitants
 city_100000   : Cities >= 100,000 inhabitants
+bw3           : Baseline population, H_D = 3 km bandwidth (Step 9 only)
+bw7           : Baseline population, H_D = 7 km bandwidth (Step 9 only)
 
 KEY SCRIPTS
 -----------
@@ -70,6 +74,18 @@ step5_direction.R
 
 step6_final_plots.R
   Path complexity metrics and final summary figures.
+
+step7_urban_robustness.R
+  Settlement-type drift comparison across city-size scenarios (SI). Run standalone
+  from the project root: Rscript code/step7_urban_robustness.R
+
+step8_uncertainty.R
+  Bootstrap arrow-fan uncertainty plot (main paper Fig. 6a). Run standalone
+  from the project root: Rscript code/step8_uncertainty.R
+
+step9_bandwidth_sensitivity.R
+  Drift comparison across bw3/baseline/bw7 KDE distance bandwidths (SI). Run standalone
+  from the project root: Rscript code/step9_bandwidth_sensitivity.R
 
 REPRODUCIBILITY
 ---------------

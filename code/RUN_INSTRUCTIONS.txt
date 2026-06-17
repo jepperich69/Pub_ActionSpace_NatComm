@@ -30,7 +30,24 @@ Rscript code/run_all.R
 
 Each scenario is run in a fresh R session to avoid cross-scenario contamination.
 
-4) OUTPUTS
+4) CROSS-SCENARIO ROBUSTNESS AND SENSITIVITY ANALYSES (STEPS 7-9)
+------------------------------------------------------------------
+These run independently of Steps 2B-6 and read directly from results/<scenario>/
+and data/kernels/<scenario>/. Run after step 2/3 above for the scenarios they need:
+
+Rscript code/step7_urban_robustness.R
+  Needs: results/{baseline,city_10000,city_25000,city_50000,city_100000}/
+  Writes: results/urban_robustness/
+
+Rscript code/step8_uncertainty.R
+  Needs: data/kernels/<scenario>/grid_mv_step2.rds, results/<scenario>/action_space_metrics_TRIPWEIGHTED.csv
+  Writes: results/uncertainty/ (includes bootstrap_arrow_fan.png, used as main paper Fig. 6a)
+
+Rscript code/step9_bandwidth_sensitivity.R
+  Needs: data/kernels/{bw3,baseline,bw7}/kde_yearbin_by_cohort.rds
+  Writes: results/bandwidth_sensitivity/
+
+5) OUTPUTS
 ----------
 Generated outputs include:
 - Figures (PNG)
@@ -40,9 +57,10 @@ Generated outputs include:
 Note: The number of generated outputs exceeds those included in the manuscript.
 This is intentional and provided for transparency and exploratory analysis.
 
-5) EXPECTED RUNTIME
+6) EXPECTED RUNTIME
 -------------------
 Baseline scenario: typically minutes.
 All scenarios: longer, depending on system performance.
+Step 8 (bootstrap, B = 500 replicates): several minutes per scenario.
 
 END OF INSTRUCTIONS
