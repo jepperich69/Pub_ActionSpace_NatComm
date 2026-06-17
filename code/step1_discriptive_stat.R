@@ -167,7 +167,18 @@ print(summary_stats_3yr, n = Inf)
 # -------------------------------------------------------------------
 # 7. Save results (extended with 3-year bins)
 # -------------------------------------------------------------------
-output_dir <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Generalizing Pseudo Cohorts/"
+# Update output_dir to be relative to the project root
+output_dir <- "../results/baseline/"
+if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+
+# Calculate 95% CI for share_no_trips
+summary_stats_3yr <- summary_stats_3yr %>%
+  mutate(
+    se = sqrt(share_no_trips * (1 - share_no_trips) / n),
+    ci_low  = pmax(0, share_no_trips - 1.96 * se),
+    ci_high = pmin(1, share_no_trips + 1.96 * se),
+    ci_label = paste0(round(ci_low * 100, 1), "--", round(ci_high * 100, 1))
+  )
 
 saveRDS(summary_stats_wd,   paste0(output_dir, "step1_descriptive_summary_2007on.rds"))
 write.csv(summary_stats_wd, paste0(output_dir, "step1_descriptive_summary_2007_WD.csv"), row.names = FALSE)
@@ -177,10 +188,51 @@ write.csv(summary_stats_all, paste0(output_dir, "step1_descriptive_summary_2007_
 saveRDS(summary_stats_3yr,   paste0(output_dir, "step1_descriptive_summary_3yrbins_2007_2024.rds"))
 write.csv(summary_stats_3yr, paste0(output_dir, "step1_descriptive_summary_2007_WD_3yrbins.csv"), row.names = FALSE)
 
-cat("\n✓ Descriptive summaries saved to:\n  ", output_dir, "\n")
-cat("  Files:\n",
-    "  - step1_descriptive_summary_2007on.rds\n",
-    "  - step1_descriptive_summary_2007_WD.csv\n",
-    "  - step1_descriptive_summary_2007_WD_all.csv\n",
-    "  - step1_descriptive_summary_3yrbins_2007_2024.rds\n",
-    "  - step1_descriptive_summary_2007_WD_3yrbins.csv\n\n")
+# -------------------------------------------------------------------
+# 8. Generate LaTeX Table S1
+# -------------------------------------------------------------------
+cat("\n=== GENERATING LATEX TABLE S1 ===\n")
+
+latex_lines <- c(
+  "\\begin{table}[!htbp]",
+  "\\centering",
+  "\\begin{threeparttable}",
+  "\\scriptsize",
+  "\\caption{Descriptive statistics by age group and 3-year bins, 2007--2024: Weekdays (excluding holidays)}",
+  "\\begin{tabular}{l l r r r r r r r}",
+  "\\toprule",
+  "\\textbf{Age group} & \\textbf{Year bin} & \\textbf{n} & \\textbf{Share 0 trips (\\%)} & \\textbf{95\\% CI} & \\textbf{Avg. dist. (km)} & \\textbf{Avg. hrs away} & \\textbf{First trip (h)} & \\textbf{Last trip (h)} \\\\",
+  "\\midrule"
+)
+
+for (i in 1:nrow(summary_stats_3yr)) {
+  row <- summary_stats_3yr[i, ]
+  line <- paste0(
+    row$AgeGroup, " & ", 
+    gsub("–", "--", row$YearBin), " & ", 
+    format(row$n, big.mark=","), " & ",
+    round(row$share_no_trips * 100, 1), " & ",
+    row$ci_label, " & ",
+    round(row$avg_distance_km, 1), " & ",
+    round(row$avg_hours_away, 2), " & ",
+    round(row$avg_first_trip_h, 2), " & ",
+    round(row$avg_last_trip_h, 2), " \\\\"
+  )
+  latex_lines <- c(latex_lines, line)
+}
+
+latex_lines <- c(
+  latex_lines,
+  "\\bottomrule",
+  "\\end{tabular}",
+  "\\begin{tablenotes}",
+  "\\footnotesize",
+  "\\item \"Weekdays\" exclude holidays according to survey coding (\\texttt{DiaryDaytype}~$\\in\\{11,12\\}$, \\texttt{DiaryMonth}~$\\neq 7$). Sample restricted to \\texttt{DiaryYear}~$\\ge 2007$. \"Share 0 trips\" denotes the proportion of diary days with no recorded travel. The 95\\% confidence interval is the normal approximation for a binomial proportion using the person-day count in each age-group--period cell. Times are in hours since midnight; distances in kilometers.",
+  "\\end{tablenotes}",
+  "\\end{threeparttable}",
+  "\\end{table}"
+)
+
+writeLines(latex_lines, paste0(output_dir, "table_s1_descriptive.tex"))
+
+cat("\n✓ Descriptive summaries and LaTeX Table S1 saved to:\n  ", output_dir, "\n")
