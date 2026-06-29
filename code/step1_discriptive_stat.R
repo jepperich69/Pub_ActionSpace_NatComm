@@ -12,7 +12,7 @@ cat("\n=== LOADING DATA ===\n")
 # -------------------------------------------------------------------
 # 1. Database connection and loading
 # -------------------------------------------------------------------
-dbname <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Population synthesis Vianey/TU0624v1.accdb"
+dbname <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_PopulationVianuey_TBA/TU0624v1.accdb"
 con <- RODBC::odbcConnectAccess2007(dbname)
 
 tur <- RODBC::sqlFetch(con, "tur")
@@ -102,11 +102,21 @@ summary_stats_wd <- summary_all %>%
   group_by(AgeGroup, Year) %>%
   summarise(
     n = n(),
-    share_no_trips = mean(is.na(FirstTrip) | HoursAway == 0),
+    share_no_trips  = mean(is.na(FirstTrip) | HoursAway == 0),
+    
     avg_distance_km = mean(AvgDist, na.rm = TRUE),
-    avg_hours_away = mean(HoursAway, na.rm = TRUE),
+    sd_distance_km  = sd(AvgDist, na.rm = TRUE),
+    
+    avg_hours_away  = mean(HoursAway, na.rm = TRUE),
+    sd_hours_away   = sd(HoursAway, na.rm = TRUE),
+    
     avg_first_trip_h = mean(FirstTrip, na.rm = TRUE) / 60,
-    avg_last_trip_h  = mean(LastTrip, na.rm = TRUE) / 60,
+    sd_first_trip_h  = sd(FirstTrip / 60, na.rm = TRUE),
+    n_trippers       = sum(!is.na(FirstTrip)),
+    
+    avg_last_trip_h  = mean(LastTrip,  na.rm = TRUE) / 60,
+    sd_last_trip_h   = sd(LastTrip / 60, na.rm = TRUE),
+    
     .groups = "drop"
   ) %>%
   arrange(Year, AgeGroup)
@@ -133,9 +143,8 @@ summary_stats_all <- summary_all %>%
 cat("\n=== SUMMARY STATISTICS (2007+) ===\n")
 print(summary_stats_all, n = Inf)
 
-
 # -------------------------------------------------------------------
-# 6b. Summarize by 3-year bins (2007–2009, …, 2022–2024)
+# 6b. Summarize by 3-year bins (2007–2024)
 # -------------------------------------------------------------------
 summary_stats_3yr <- summary_all %>%
   # clamp to requested window
@@ -153,10 +162,20 @@ summary_stats_3yr <- summary_all %>%
   summarise(
     n = n(),
     share_no_trips  = mean(is.na(FirstTrip) | HoursAway == 0),
+    
     avg_distance_km = mean(AvgDist, na.rm = TRUE),
+    sd_distance_km  = sd(AvgDist, na.rm = TRUE),
+    
     avg_hours_away  = mean(HoursAway, na.rm = TRUE),
+    sd_hours_away   = sd(HoursAway, na.rm = TRUE),
+    
     avg_first_trip_h = mean(FirstTrip, na.rm = TRUE) / 60,
+    sd_first_trip_h  = sd(FirstTrip / 60, na.rm = TRUE),
+    n_trippers       = sum(!is.na(FirstTrip)),
+    
     avg_last_trip_h  = mean(LastTrip,  na.rm = TRUE) / 60,
+    sd_last_trip_h   = sd(LastTrip / 60, na.rm = TRUE),
+    
     .groups = "drop"
   ) %>%
   arrange(YearBin, AgeGroup)
@@ -167,17 +186,41 @@ print(summary_stats_3yr, n = Inf)
 # -------------------------------------------------------------------
 # 7. Save results (extended with 3-year bins)
 # -------------------------------------------------------------------
-# Update output_dir to be relative to the project root
 output_dir <- "../results/baseline/"
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
-# Calculate 95% CI for share_no_trips
+# Calculate 95% CIs
 summary_stats_3yr <- summary_stats_3yr %>%
   mutate(
-    se = sqrt(share_no_trips * (1 - share_no_trips) / n),
-    ci_low  = pmax(0, share_no_trips - 1.96 * se),
-    ci_high = pmin(1, share_no_trips + 1.96 * se),
-    ci_label = paste0(round(ci_low * 100, 1), "--", round(ci_high * 100, 1))
+    # Share 0 trips CI
+    se_no_trips = sqrt(share_no_trips * (1 - share_no_trips) / n),
+    ci_no_trips_low  = pmax(0, share_no_trips - 1.96 * se_no_trips),
+    ci_no_trips_high = pmin(1, share_no_trips + 1.96 * se_no_trips),
+    ci_no_trips_label = paste0(round(ci_no_trips_low * 100, 1), "--", round(ci_no_trips_high * 100, 1)),
+    
+    # Distance CI
+    se_distance = sd_distance_km / sqrt(n),
+    ci_distance_low = pmax(0, avg_distance_km - 1.96 * se_distance),
+    ci_distance_high = avg_distance_km + 1.96 * se_distance,
+    ci_distance_label = paste0(round(ci_distance_low, 1), "--", round(ci_distance_high, 1)),
+    
+    # Hours away CI
+    se_hours = sd_hours_away / sqrt(n),
+    ci_hours_low = pmax(0, avg_hours_away - 1.96 * se_hours),
+    ci_hours_high = avg_hours_away + 1.96 * se_hours,
+    ci_hours_label = paste0(round(ci_hours_low, 2), "--", round(ci_hours_high, 2)),
+    
+    # First trip timing CI
+    se_first = sd_first_trip_h / sqrt(n_trippers),
+    ci_first_low = avg_first_trip_h - 1.96 * se_first,
+    ci_first_high = avg_first_trip_h + 1.96 * se_first,
+    ci_first_label = paste0(round(ci_first_low, 2), "--", round(ci_first_high, 2)),
+    
+    # Last trip timing CI
+    se_last = sd_last_trip_h / sqrt(n_trippers),
+    ci_last_low = avg_last_trip_h - 1.96 * se_last,
+    ci_last_high = avg_last_trip_h + 1.96 * se_last,
+    ci_last_label = paste0(round(ci_last_low, 2), "--", round(ci_last_high, 2))
   )
 
 saveRDS(summary_stats_wd,   paste0(output_dir, "step1_descriptive_summary_2007on.rds"))
@@ -199,9 +242,9 @@ latex_lines <- c(
   "\\begin{threeparttable}",
   "\\scriptsize",
   "\\caption{Descriptive statistics by age group and 3-year bins, 2007--2024: Weekdays (excluding holidays)}",
-  "\\begin{tabular}{l l r r r r r r r}",
+  "\\begin{tabular}{l l r c c c c c}",
   "\\toprule",
-  "\\textbf{Age group} & \\textbf{Year bin} & \\textbf{n} & \\textbf{Share 0 trips (\\%)} & \\textbf{95\\% CI} & \\textbf{Avg. dist. (km)} & \\textbf{Avg. hrs away} & \\textbf{First trip (h)} & \\textbf{Last trip (h)} \\\\",
+  "\\textbf{Age group} & \\textbf{Year bin} & \\textbf{n} & \\textbf{Share 0 trips (\\%) [95\\% CI]} & \\textbf{Avg. dist. (km) [95\\% CI]} & \\textbf{Avg. hrs away [95\\% CI]} & \\textbf{First trip (h) [95\\% CI]} & \\textbf{Last trip (h) [95\\% CI]} \\\\",
   "\\midrule"
 )
 
@@ -211,12 +254,11 @@ for (i in 1:nrow(summary_stats_3yr)) {
     row$AgeGroup, " & ", 
     gsub("–", "--", row$YearBin), " & ", 
     format(row$n, big.mark=","), " & ",
-    round(row$share_no_trips * 100, 1), " & ",
-    row$ci_label, " & ",
-    round(row$avg_distance_km, 1), " & ",
-    round(row$avg_hours_away, 2), " & ",
-    round(row$avg_first_trip_h, 2), " & ",
-    round(row$avg_last_trip_h, 2), " \\\\"
+    round(row$share_no_trips * 100, 1), " (", row$ci_no_trips_label, ") & ",
+    round(row$avg_distance_km, 1), " (", row$ci_distance_label, ") & ",
+    sprintf("%.2f (%.2f--%.2f)", row$avg_hours_away, row$ci_hours_low, row$ci_hours_high), " & ",
+    sprintf("%.2f (%.2f--%.2f)", row$avg_first_trip_h, row$ci_first_low, row$ci_first_high), " & ",
+    sprintf("%.2f (%.2f--%.2f)", row$avg_last_trip_h, row$ci_last_low, row$ci_last_high), " \\\\"
   )
   latex_lines <- c(latex_lines, line)
 }
@@ -227,7 +269,7 @@ latex_lines <- c(
   "\\end{tabular}",
   "\\begin{tablenotes}",
   "\\footnotesize",
-  "\\item \"Weekdays\" exclude holidays according to survey coding (\\texttt{DiaryDaytype}~$\\in\\{11,12\\}$, \\texttt{DiaryMonth}~$\\neq 7$). Sample restricted to \\texttt{DiaryYear}~$\\ge 2007$. \"Share 0 trips\" denotes the proportion of diary days with no recorded travel. The 95\\% confidence interval is the normal approximation for a binomial proportion using the person-day count in each age-group--period cell. Times are in hours since midnight; distances in kilometers.",
+  "\\item \"Weekdays\" exclude holidays according to survey coding (\\texttt{DiaryDaytype}~$\\in\\{11,12\\}$, \\texttt{DiaryMonth}~$\\neq 7$). Sample restricted to \\texttt{DiaryYear}~$\\ge 2007$. \"Share 0 trips\" denotes the proportion of diary days with no recorded travel. Confidence intervals (95\\%) are reported in parentheses: for \"Share 0 trips\", it is the binomial normal approximation CI; for all other metrics, it is the standard normal confidence interval calculated using cell sample sizes. Times are in hours since midnight; distances in kilometers.",
   "\\end{tablenotes}",
   "\\end{threeparttable}",
   "\\end{table}"
@@ -236,3 +278,107 @@ latex_lines <- c(
 writeLines(latex_lines, paste0(output_dir, "table_s1_descriptive.tex"))
 
 cat("\n✓ Descriptive summaries and LaTeX Table S1 saved to:\n  ", output_dir, "\n")
+
+# -------------------------------------------------------------------
+# 9. Generate Supplementary Figure S7 (Annual Trends with 95% CIs)
+# -------------------------------------------------------------------
+cat("\n=== GENERATING SUPPLEMENTARY FIGURE S7 ===\n")
+library(ggplot2)
+library(patchwork)
+
+# Calculate annual 95% CIs
+summary_stats_wd <- summary_stats_wd %>%
+  mutate(
+    # Share 0 trips CI
+    se_no_trips = sqrt(share_no_trips * (1 - share_no_trips) / n),
+    ci_no_trips_low  = pmax(0, share_no_trips - 1.96 * se_no_trips),
+    ci_no_trips_high = pmin(1, share_no_trips + 1.96 * se_no_trips),
+    
+    # Distance CI
+    se_distance = sd_distance_km / sqrt(n),
+    ci_distance_low = pmax(0, avg_distance_km - 1.96 * se_distance),
+    ci_distance_high = avg_distance_km + 1.96 * se_distance,
+    
+    # Hours away CI
+    se_hours = sd_hours_away / sqrt(n),
+    ci_hours_low = pmax(0, avg_hours_away - 1.96 * se_hours),
+    ci_hours_high = avg_hours_away + 1.96 * se_hours
+  )
+
+# Color scale
+age_colours <- c(
+  "10-17" = "#440154",
+  "18-30" = "#3B528B",
+  "31-55" = "#21908C",
+  "56-65" = "#5DC963",
+  "66+"   = "#FDE725"
+)
+
+# Plot 1: Share of days with 0 trips
+p1 <- ggplot(summary_stats_wd, aes(x = Year, y = share_no_trips * 100, color = AgeGroup, fill = AgeGroup)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = ci_no_trips_low * 100, ymax = ci_no_trips_high * 100), alpha = 0.15, color = NA) +
+  scale_color_manual(values = age_colours) +
+  scale_fill_manual(values = age_colours) +
+  scale_x_continuous(breaks = seq(2008, 2024, by = 4)) +
+  labs(
+    y = "Share of days with zero trips (%)",
+    x = "Year"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(face = "bold", size = 16)
+  )
+
+# Plot 2: Average distance when away
+p2 <- ggplot(summary_stats_wd, aes(x = Year, y = avg_distance_km, color = AgeGroup, fill = AgeGroup)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = ci_distance_low, ymax = ci_distance_high), alpha = 0.15, color = NA) +
+  scale_color_manual(values = age_colours) +
+  scale_fill_manual(values = age_colours) +
+  scale_x_continuous(breaks = seq(2008, 2024, by = 4)) +
+  labs(
+    y = "Mean active distance (km)",
+    x = "Year"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    panel.grid.minor = element_blank()
+  )
+
+# Plot 3: Average hours away from home
+p3 <- ggplot(summary_stats_wd, aes(x = Year, y = avg_hours_away, color = AgeGroup, fill = AgeGroup)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = ci_hours_low, ymax = ci_hours_high), alpha = 0.15, color = NA) +
+  scale_color_manual(values = age_colours) +
+  scale_fill_manual(values = age_colours) +
+  scale_x_continuous(breaks = seq(2008, 2024, by = 4)) +
+  labs(
+    y = "Mean hours away from home (h)",
+    x = "Year",
+    color = "Age group",
+    fill = "Age group"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "right",
+    panel.grid.minor = element_blank()
+  )
+
+# Combine plots using patchwork
+combined_plot <- p1 + p2 + p3 + 
+  plot_layout(ncol = 3, widths = c(1, 1, 1.3)) + 
+  plot_annotation(
+    title = "Annual mobility trends by age group with 95% confidence intervals, 2007-2024",
+    theme = theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5))
+  )
+
+# Save plots
+overleaf_fig_path <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_ActionSpace_NatComm/Overleaf_source/figures/Figure_R2_S7.png"
+ggsave(overleaf_fig_path, combined_plot, width = 16, height = 5.5, dpi = 300)
+ggsave(paste0(output_dir, "Figure_R2_S7.png"), combined_plot, width = 16, height = 5.5, dpi = 300)
+cat("\n✓ Supplementary Figure S7 saved to:\n  ", overleaf_fig_path, "\n")
+
