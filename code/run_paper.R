@@ -190,24 +190,49 @@ content_diff <- function(a, b) {
   if (!requireNamespace("png", quietly = TRUE)) return(NA_real_)
   if (!file.exists(a) || !file.exists(b))       return(NA_real_)
 
-  flatten <- function(p) {
-    m <- png::readPNG(p)
-    if (length(dim(m)) == 2) m <- array(m, c(dim(m), 1))
-    if (dim(m)[3] == 4) {                      # composite RGBA onto white
-      alpha <- m[, , 4]
-      m <- vapply(1:3, function(k) m[, , k] * alpha + (1 - alpha),
-                  matrix(0, dim(m)[1], dim(m)[2]))
-    }
-    m
+  # Read as a native raster: one packed integer per pixel rather than four
+  # doubles. A full double read of the 10800x7200 difference map needs about
+  # 2.5 GB and fails, which previously left that figure permanently unclassified
+  # as DIFFERS-? — the one verdict that hides problems instead of surfacing them.
+  read_native <- function(p) {
+    m <- png::readPNG(p, native = TRUE)
+    matrix(unclass(m), nrow = dim(m)[1])   # unclass: nativeRaster indexes oddly
   }
 
-  ia <- try(flatten(a), silent = TRUE)
-  ib <- try(flatten(b), silent = TRUE)
+  ia <- try(read_native(a), silent = TRUE)
+  ib <- try(read_native(b), silent = TRUE)
   if (inherits(ia, "try-error") || inherits(ib, "try-error")) return(NA_real_)
   if (!identical(dim(ia), dim(ib)))                           return(1)
 
-  changed <- apply(abs(ia - ib), c(1, 2), max) > CHANNEL_TOL
-  mean(changed)
+  # A packed pixel whose bit pattern equals R's integer NA sentinel reads back
+  # as NA (39 pixels in 10.8M for one of these figures). Treat those as equal
+  # rather than letting them poison the comparison.
+  na_px <- is.na(ia) | is.na(ib)
+  if (any(na_px)) { ia[na_px] <- 0L; ib[na_px] <- 0L }
+
+  # Unpack and compare in row blocks so peak memory stays bounded.
+  byte <- function(v, shift) bitwAnd(bitwShiftR(v, shift), 255L)
+  nrow_total <- dim(ia)[1]
+  block      <- max(1L, as.integer(2e7 %/% dim(ia)[2]))
+  changed    <- 0
+  for (start in seq(1L, nrow_total, by = block)) {
+    rows <- start:min(start + block - 1L, nrow_total)
+    va <- as.integer(ia[rows, , drop = FALSE])
+    vb <- as.integer(ib[rows, , drop = FALSE])
+
+    # Composite each channel onto white using its own alpha.
+    chan <- function(v, shift) {
+      alpha <- byte(v, 24) / 255
+      byte(v, shift) * alpha + 255 * (1 - alpha)
+    }
+
+    delta <- pmax(abs(chan(va, 0)  - chan(vb, 0)),
+                  abs(chan(va, 8)  - chan(vb, 8)),
+                  abs(chan(va, 16) - chan(vb, 16)))
+    changed <- changed + sum(delta > CHANNEL_TOL * 255)
+  }
+
+  changed / (nrow_total * dim(ia)[2])
 }
 
 manifest$bitwise <- "NO-REF"
