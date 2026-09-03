@@ -144,17 +144,24 @@ manifest <- rbind(
 
 
   # ---- tables ----
-  data.frame(item = "Table 1",   file = "results/baseline/table_main1_descriptive.tex",              owner = NA),
-  data.frame(item = "Table S1",  file = "results/baseline/table_s1_descriptive.tex",                 owner = "step1_discriptive_stat.R"),
+  data.frame(item = "Table 1",   file = "results/baseline/table_main1_descriptive.tex",              owner = "RESTRICTED"),
+  data.frame(item = "Table S1",  file = "results/baseline/table_s1_descriptive.tex",                 owner = "RESTRICTED"),
   data.frame(item = "Table S2",  file = "results/baseline/table_path_complexity.tex",                owner = "step6_final_plots.R"),
   data.frame(item = "Table S3",  file = "results/bandwidth_sensitivity/table_bandwidth_drift.tex",   owner = NA),
   data.frame(item = "Table S4",  file = "results/baseline/table_s4_covid_departure.tex",             owner = "step11_covid_departure.R")
 )
 
 manifest$present <- file.exists(manifest$file)
-manifest$status  <- ifelse(!is.na(manifest$owner) & manifest$present, "OK",
-                    ifelse(is.na(manifest$owner),                     "UNOWNED",
-                                                                      "MISSING"))
+
+# RESTRICTED marks assets built directly from the TU microdata, which cannot be
+# redistributed. They are not reproduction gaps: no public clone can or should
+# regenerate them, and the reviewer raised no question about them. UNOWNED is
+# reserved for assets that could be generated from the shipped kernels but
+# currently are not.
+manifest$status <- ifelse(
+  manifest$owner %in% "RESTRICTED", "RESTRICTED",
+  ifelse(!is.na(manifest$owner) & manifest$present, "OK",
+    ifelse(is.na(manifest$owner), "UNOWNED", "MISSING")))
 
 # ---- byte-identity against the recorded manuscript figures ----
 
@@ -242,6 +249,7 @@ content_diff <- function(a, b) {
   changed / (nrow_total * dim(ia)[2])
 }
 
+manifest$px_diff <- NA_real_
 manifest$bitwise <- "NO-REF"
 if (file.exists(REF_FILE)) {
   ref <- read.csv(REF_FILE, stringsAsFactors = FALSE)
