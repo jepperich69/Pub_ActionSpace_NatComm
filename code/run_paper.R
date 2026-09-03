@@ -32,6 +32,18 @@ source("code/utils_io.R")
 args            <- commandArgs(trailingOnly = TRUE)
 with_restricted <- "--with-restricted" %in% args
 manifest_only   <- "--manifest-only"   %in% args
+record_ref      <- "--record"          %in% args
+
+# Reference checksums for the figures as they appear in the submitted
+# manuscript. The suite is only doing its job if a rerun reproduces these
+# byte for byte, so the manifest checks the MD5 of every regenerated figure
+# against this file rather than merely checking that a file exists.
+#
+#   Rscript code/run_paper.R --record   # stamp current figures as reference
+#
+# Record only from a manuscript state you are prepared to defend: it
+# redefines what "reproduces" means for every later run.
+REF_FILE <- file.path("results", "figure_checksums.csv")
 
 SCENARIOS <- c("baseline", "sex1", "sex2",
                "city_10000", "city_25000", "city_50000", "city_100000")
@@ -136,14 +148,40 @@ manifest$status  <- ifelse(!is.na(manifest$owner) & manifest$present, "OK",
                     ifelse(is.na(manifest$owner),                     "UNOWNED",
                                                                       "MISSING"))
 
+# ---- byte-identity against the recorded manuscript figures ----
+
+manifest$md5 <- NA_character_
+present_idx  <- which(manifest$present)
+if (length(present_idx)) {
+  manifest$md5[present_idx] <- unname(tools::md5sum(manifest$file[present_idx]))
+}
+
+if (record_ref) {
+  ref_out <- manifest[manifest$present, c("item", "file", "md5")]
+  ref_out$file <- basename(ref_out$file)
+  write.csv(ref_out, REF_FILE, row.names = FALSE)
+  cat("\nRecorded", nrow(ref_out), "reference checksums to", REF_FILE, "\n")
+}
+
+manifest$bitwise <- "NO-REF"
+if (file.exists(REF_FILE)) {
+  ref <- read.csv(REF_FILE, stringsAsFactors = FALSE)
+  m   <- match(manifest$item, ref$item)
+  manifest$bitwise <- ifelse(
+    is.na(m) | is.na(manifest$md5), "NO-REF",
+    ifelse(manifest$md5 == ref$md5[m], "IDENTICAL", "DIFFERS")
+  )
+}
+
 cat("\n\n==============================================================\n")
 cat("MANIFEST - manuscript figures and tables\n")
 cat("==============================================================\n\n")
 
 for (i in seq_len(nrow(manifest))) {
-  cat(sprintf("  %-11s %-8s %-34s %s\n",
+  cat(sprintf("  %-11s %-8s %-10s %-34s %s\n",
               manifest$item[i],
               manifest$status[i],
+              manifest$bitwise[i],
               basename(manifest$file[i]),
               if (is.na(manifest$owner[i])) "(no script produces this)" else manifest$owner[i]))
 }
@@ -168,6 +206,22 @@ if (n_missing > 0) {
   cat("   restricted stage was run.\n")
 }
 
+n_differs <- sum(manifest$bitwise == "DIFFERS")
+n_ident   <- sum(manifest$bitwise == "IDENTICAL")
+
+if (file.exists(REF_FILE)) {
+  cat("\n  ", n_ident, "of", sum(manifest$present),
+      "present assets are byte-identical to the recorded manuscript figures\n")
+  if (n_differs > 0) {
+    cat("\n  ", n_differs, "DIFFERS - regenerated output does not match the manuscript:\n")
+    for (f in manifest$item[manifest$bitwise == "DIFFERS"]) cat("      -", f, "\n")
+    cat("   Either the manuscript figure is stale, or the pipeline no longer\n")
+    cat("   produces it. Resolve before submitting; do not re-record to hide it.\n")
+  }
+} else {
+  cat("\n   No reference checksums yet. Run with --record to create", REF_FILE, "\n")
+}
+
 if (length(failures) > 0) {
   cat("\n  ", length(failures), "STEP(S) FAILED:\n")
   for (f in failures) cat("      -", f, "\n")
@@ -176,4 +230,4 @@ if (length(failures) > 0) {
 write.csv(manifest, file.path("results", "manuscript_manifest.csv"), row.names = FALSE)
 cat("\n  Manifest written to results/manuscript_manifest.csv\n\n")
 
-if (length(failures) > 0) quit(status = 1)
+if (length(failures) > 0 || n_differs > 0) quit(status = 1)
