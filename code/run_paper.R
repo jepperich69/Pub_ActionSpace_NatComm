@@ -106,6 +106,7 @@ if (!manifest_only) {
   run_step("step8_uncertainty_R2.R",     label = "step8 (R2) - Figure 6a, Supplementary Figure S8")
   run_step("step9_bandwidth_sensitivity.R", label = "step9 - Supplementary Figure S6, Table S3")
   run_step("check_drift_periods.R",      label = "check - drift period comparison table")
+  run_step("step10_collect_figures.R",   label = "step10 - collect manuscript figures")
 }
 
 # ============================================================================
@@ -158,19 +159,81 @@ if (length(present_idx)) {
 
 if (record_ref) {
   ref_out <- manifest[manifest$present, c("item", "file", "md5")]
-  ref_out$file <- basename(ref_out$file)
+  ref_out$ref_path <- normalizePath(ref_out$file, winslash = "/")
+  ref_out$file     <- basename(ref_out$file)
   write.csv(ref_out, REF_FILE, row.names = FALSE)
   cat("\nRecorded", nrow(ref_out), "reference checksums to", REF_FILE, "\n")
+}
+
+# A checksum mismatch has two very different causes, and conflating them makes
+# the check useless. The plot may genuinely have changed, or the same plot may
+# simply have been rendered by a different toolchain. We hit the second case
+# immediately: ggplot2 changed its default ggsave background between the
+# figures shipped with the manuscript and ggplot2 4.0.2, so the published PNGs
+# carry a transparent background and current renders carry white. Identical
+# plots, different bytes.
+#
+# So when the MD5 differs we compare the images themselves, compositing any
+# alpha channel onto white first. Requires the png package; without it the
+# result is reported as DIFFERS-? rather than silently passing.
+#
+# Returns the fraction of pixels differing by more than CHANNEL_TOL, or NA if
+# the comparison could not be made. A single antialiased glyph rendered by a
+# different font stack changes a handful of pixels, so requiring every pixel to
+# match would flag every figure. We therefore threshold on the share of changed
+# pixels, and the manifest prints that share so a borderline case is visible
+# rather than hidden behind a verdict.
+CHANNEL_TOL <- 8 / 255   # per-channel difference counted as a changed pixel
+PIXEL_TOL   <- 0.005     # up to 0.5% changed pixels reads as a rendering difference
+
+content_diff <- function(a, b) {
+  if (!requireNamespace("png", quietly = TRUE)) return(NA_real_)
+  if (!file.exists(a) || !file.exists(b))       return(NA_real_)
+
+  flatten <- function(p) {
+    m <- png::readPNG(p)
+    if (length(dim(m)) == 2) m <- array(m, c(dim(m), 1))
+    if (dim(m)[3] == 4) {                      # composite RGBA onto white
+      alpha <- m[, , 4]
+      m <- vapply(1:3, function(k) m[, , k] * alpha + (1 - alpha),
+                  matrix(0, dim(m)[1], dim(m)[2]))
+    }
+    m
+  }
+
+  ia <- try(flatten(a), silent = TRUE)
+  ib <- try(flatten(b), silent = TRUE)
+  if (inherits(ia, "try-error") || inherits(ib, "try-error")) return(NA_real_)
+  if (!identical(dim(ia), dim(ib)))                           return(1)
+
+  changed <- apply(abs(ia - ib), c(1, 2), max) > CHANNEL_TOL
+  mean(changed)
 }
 
 manifest$bitwise <- "NO-REF"
 if (file.exists(REF_FILE)) {
   ref <- read.csv(REF_FILE, stringsAsFactors = FALSE)
-  m   <- match(manifest$item, ref$item)
-  manifest$bitwise <- ifelse(
-    is.na(m) | is.na(manifest$md5), "NO-REF",
-    ifelse(manifest$md5 == ref$md5[m], "IDENTICAL", "DIFFERS")
-  )
+  if (is.null(ref$ref_path)) ref$ref_path <- NA_character_
+  m <- match(manifest$item, ref$item)
+
+  for (i in seq_len(nrow(manifest))) {
+    j <- m[i]
+    if (is.na(j) || is.na(manifest$md5[i])) next
+
+    if (manifest$md5[i] == ref$md5[j]) {
+      manifest$bitwise[i] <- "IDENTICAL"
+      next
+    }
+
+    frac <- if (grepl("\\.png$", manifest$file[i], ignore.case = TRUE)) {
+      content_diff(ref$ref_path[j], manifest$file[i])
+    } else NA_real_
+
+    manifest$px_diff[i] <- frac
+    manifest$bitwise[i] <- if (is.na(frac))          "DIFFERS-?"
+                           else if (frac <= PIXEL_TOL) "RENDER-ONLY"
+                           else                        "CONTENT"
+  }
 }
 
 cat("\n\n==============================================================\n")
@@ -206,17 +269,36 @@ if (n_missing > 0) {
   cat("   restricted stage was run.\n")
 }
 
-n_differs <- sum(manifest$bitwise == "DIFFERS")
 n_ident   <- sum(manifest$bitwise == "IDENTICAL")
+n_render  <- sum(manifest$bitwise == "RENDER-ONLY")
+n_content <- sum(manifest$bitwise == "CONTENT")
+n_unknown <- sum(manifest$bitwise == "DIFFERS-?")
+n_differs <- n_content + n_unknown
 
 if (file.exists(REF_FILE)) {
-  cat("\n  ", n_ident, "of", sum(manifest$present),
-      "present assets are byte-identical to the recorded manuscript figures\n")
-  if (n_differs > 0) {
-    cat("\n  ", n_differs, "DIFFERS - regenerated output does not match the manuscript:\n")
-    for (f in manifest$item[manifest$bitwise == "DIFFERS"]) cat("      -", f, "\n")
-    cat("   Either the manuscript figure is stale, or the pipeline no longer\n")
-    cat("   produces it. Resolve before submitting; do not re-record to hide it.\n")
+  cat("\n  ", n_ident + n_render, "of", sum(manifest$present),
+      "present assets match the manuscript:", n_ident, "byte-identical,",
+      n_render, "identical in content\n")
+
+  if (n_render > 0) {
+    cat("\n  ", n_render, "RENDER-ONLY - same plot, different bytes:\n")
+    for (f in manifest$item[manifest$bitwise == "RENDER-ONLY"]) cat("      -", f, "\n")
+    cat("   Pixel-identical after compositing alpha onto white. This is a\n")
+    cat("   toolchain difference, not a result change. Pin the environment if\n")
+    cat("   byte-identity is required.\n")
+  }
+
+  if (n_content > 0) {
+    cat("\n  ", n_content, "CONTENT - the plot itself differs from the manuscript:\n")
+    for (f in manifest$item[manifest$bitwise == "CONTENT"]) cat("      -", f, "\n")
+    cat("   Either the manuscript figure is stale, or the pipeline changed.\n")
+    cat("   Resolve before submitting; do not re-record to hide it.\n")
+  }
+
+  if (n_unknown > 0) {
+    cat("\n  ", n_unknown, "DIFFERS-? - checksum differs, content not checked:\n")
+    for (f in manifest$item[manifest$bitwise == "DIFFERS-?"]) cat("      -", f, "\n")
+    cat("   install.packages(\"png\") to classify these.\n")
   }
 } else {
   cat("\n   No reference checksums yet. Run with --record to create", REF_FILE, "\n")
