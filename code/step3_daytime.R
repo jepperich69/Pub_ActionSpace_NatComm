@@ -50,16 +50,18 @@ baseline_stats <- temporal_baseline_smooth %>%
   filter(!is.na(density_smooth)) %>%  # Remove NAs from filter edges
   group_by(AgeGroup) %>%
   summarise(
-    #mean_hour = sum(t * density_smooth * dt) / sum(density_smooth * dt),
-    mean_hour = {
-      theta <- 2 * pi * t / 24  # Convert hours to radians
-      weights <- density_smooth * dt
-      sin_sum <- sum(sin(theta) * weights)
-      cos_sum <- sum(cos(theta) * weights)
-      mean_angle <- atan2(sin_sum, cos_sum)  # Result in radians [-pi, pi]
-      mean_hour_circular <- (mean_angle * 24 / (2 * pi)) %% 24  # Convert back to hours [0, 24)
-      mean_hour_circular
-    },
+    # Linear (density-weighted) mean hour. This MUST match the convention used
+    # for yearbin_stats below, because shift_mean subtracts one from the other.
+    #
+    # A circular (angular) mean was used here at one point while the year-bin
+    # side stayed linear. Subtracting the two conventions added a spurious
+    # per-age-group offset of 0.25-0.40 h to every shift_mean, which pushed the
+    # whole of Supplementary Figure S2 above zero. Away-from-home density is
+    # concentrated in daytime and carries no mass across midnight, so the
+    # linear mean is the appropriate summary and no wrap-around correction is
+    # needed. If a circular mean is ever wanted, yearbin_stats and sd_hour must
+    # change with it, and Supplementary Figure S2 must be regenerated.
+    mean_hour = sum(t * density_smooth * dt) / sum(density_smooth * dt),
     median_hour = {
       cum_dens <- cumsum(density_smooth * dt)
       cum_dens <- cum_dens / max(cum_dens)
