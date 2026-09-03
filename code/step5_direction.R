@@ -80,7 +80,7 @@ all_volume_metrics <- all_volume_metrics %>%
   mutate(
     Period = normalize_dash(Period),
     Period = case_when(
-      Period %in% c("Baseline", "Baseline (2007-2009)", "2007-2009") ~ "Baseline (2007-2009)",
+      Period %in% c("Baseline", BASELINE_LABEL, "2007-2009") ~ BASELINE_LABEL,
       TRUE ~ Period
     )
   )
@@ -90,7 +90,7 @@ cat("Available periods: ", paste(unique(all_volume_metrics$Period), collapse = "
 
 # --- AUTO-SCALE TO KILOMETERS (guards against underscaled units) -------------
 baseline_probe <- all_volume_metrics %>%
-  filter(Period == "Baseline (2007-2009)")
+  filter(Period == BASELINE_LABEL)
 
 if (median(baseline_probe$mean_distance_active, na.rm = TRUE) < 3) {
   scale_factor <- 10
@@ -103,10 +103,10 @@ if (median(baseline_probe$mean_distance_active, na.rm = TRUE) < 3) {
 # PREPARE DATA FOR DRIFT ANALYSIS
 # ============================================================================
 baseline_data <- all_volume_metrics %>%
-  filter(Period == "Baseline (2007-2009)")
+  filter(Period == BASELINE_LABEL)
 
 yearbin_data <- all_volume_metrics %>%
-  filter(Period != "Baseline (2007-2009)")
+  filter(Period != BASELINE_LABEL)
 
 if (nrow(baseline_data) == 0) {
   stop("No rows found for Period == 'Baseline (2007-2009)'. Check Step 4 output.")
@@ -172,7 +172,7 @@ stopifnot(all(dup_check$n == 1))
 
 # 2.2 Order periods and pick base/latest
 period_levels <- centroids %>%
-  filter(Period != "Baseline (2007-2009)") %>%
+  filter(Period != BASELINE_LABEL) %>%
   distinct(Period) %>%
   mutate(end_year = extract_end_year(Period)) %>%
   arrange(end_year) %>%
@@ -182,7 +182,7 @@ most_recent_period <- tail(period_levels, 1L)
 
 # 2.3 Compute baseâ†’latest endpoints using mean_distance_active
 start_data <- centroids %>%
-  filter(Period == "Baseline (2007-2009)") %>%
+  filter(Period == BASELINE_LABEL) %>%
   transmute(AgeGroup, x_start = fraction_away, y_start = mean_distance_active)  # FIXED
 
 end_data <- centroids %>%
@@ -317,7 +317,7 @@ df_traj <- all_volume_metrics %>%
   mutate(
     Period = normalize_dash(Period),
     Period = case_when(
-      Period == "Baseline" ~ "Baseline (2007-2009)",
+      Period == "Baseline" ~ BASELINE_LABEL,
       TRUE ~ Period
     ),
     x = fraction_away,
@@ -325,12 +325,12 @@ df_traj <- all_volume_metrics %>%
   )
 
 # Get period ordering
-baseline_row <- df_traj %>% filter(Period == "Baseline (2007-2009)") %>% slice(1)
+baseline_row <- df_traj %>% filter(Period == BASELINE_LABEL) %>% slice(1)
 baseline_numeric <- if (nrow(baseline_row) > 0) 2008 else NA
 
 periods_ordered <- df_traj %>%
   mutate(
-    Year_numeric = if_else(Period == "Baseline (2007-2009)", baseline_numeric,
+    Year_numeric = if_else(Period == BASELINE_LABEL, baseline_numeric,
                            extract_end_year(Period))
   ) %>%
   distinct(Period, Year_numeric) %>%
@@ -349,10 +349,10 @@ p_trajectories <- ggplot() +
   geom_path(data = df_traj,
             aes(x = x, y = y, color = AgeGroup, group = AgeGroup),
             linewidth = 1.3, alpha = 0.8) +
-  geom_point(data = df_traj %>% filter(Period == "Baseline (2007-2009)"),
+  geom_point(data = df_traj %>% filter(Period == BASELINE_LABEL),
              aes(x = x, y = y, color = AgeGroup),
              size = 4, shape = 23, fill = "gray", stroke = 1.5) +
-  geom_point(data = df_traj %>% filter(Period != "Baseline (2007-2009)"),
+  geom_point(data = df_traj %>% filter(Period != BASELINE_LABEL),
              aes(x = x, y = y, color = AgeGroup, shape = Period),
              size = 3, alpha = 0.9) +
   geom_segment(data = drift_vectors,
@@ -432,7 +432,7 @@ trajectory_drift <- all_sequential %>%
 
 # Get baseline positions for arrow start points
 baseline_positions <- centroids %>%
-  dplyr::filter(Period == "Baseline (2007-2009)") %>%
+  dplyr::filter(Period == BASELINE_LABEL) %>%
   dplyr::transmute(AgeGroup, x_start = fraction_away, y_start = mean_distance_active)
 
 # Create endpoint positions using averaged drift

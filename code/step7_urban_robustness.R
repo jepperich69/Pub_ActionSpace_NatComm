@@ -127,7 +127,7 @@ cat("Computing drift vectors per scenario...\n")
 
 compute_drift <- function(df) {
   df <- df %>%
-    filter(Period != "Baseline (2007-2009)") %>%
+    filter(Period != BASELINE_LABEL) %>%
     mutate(end_year = extract_end_year(Period))
 
   latest_period <- df %>%
@@ -137,6 +137,7 @@ compute_drift <- function(df) {
     pull(Period)
 
   baseline <- df %>%
+    filter(in_baseline(Period)) %>%
     group_by(AgeGroup) %>%
     summarise(
       x_base = mean(fraction_away,        na.rm = TRUE),
@@ -191,7 +192,7 @@ cat("\n")
 cat("Creating 5-panel drift comparison figure...\n")
 
 # Shared axis limits (computed from baseline scenario, padded slightly)
-base_data <- all_data %>% filter(scenario == "baseline", Period != "Baseline (2007-2009)")
+base_data <- all_data %>% filter(scenario == "baseline", Period != BASELINE_LABEL)
 
 x_pad <- 0.02
 y_pad <- 0.5

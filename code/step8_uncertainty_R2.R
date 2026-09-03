@@ -66,7 +66,18 @@ PRE_END   <- "2016-2018"
 set.seed(SEED)
 
 dirs    <- get_dirs(SCENARIO)
-OUT_DIR <- file.path("results", "uncertainty")
+OUT_DIR <- file.path("results", "uncertainty", SCENARIO)
+
+# Which manuscript figure this scenario's arrow fan becomes. Supplementary
+# Figure S5 is produced here rather than by a separate script so that it uses
+# the identical visual template to Figure 6a - same baseline, same bootstrap
+# fan, same axes - since its caption tells the reader it relates to Figure 6a.
+MANUSCRIPT_FIGURE <- c(
+  baseline = "Figure_R2_6a.png",
+  sex1     = "drift_vectors_males.png",
+  sex2     = "drift_vectors_females.png"
+)[[SCENARIO]]
+if (is.null(MANUSCRIPT_FIGURE) || is.na(MANUSCRIPT_FIGURE)) MANUSCRIPT_FIGURE <- NA_character_
 if (!dir.exists(OUT_DIR)) dir.create(OUT_DIR, recursive = TRUE)
 
 age_colours <- c(
@@ -100,6 +111,7 @@ period_rows <- metrics %>% filter(!grepl("^Baseline", Period))
 
 # A. Full Period (Headline) Point Estimates
 kde_baseline <- period_rows %>%
+  filter(in_baseline(Period)) %>%
   group_by(AgeGroup) %>%
   summarise(x_base = mean(fraction_away),
             y_base = mean(mean_distance_active), .groups = "drop")
@@ -241,6 +253,7 @@ compute_drift_boot <- function(df, replicate_id, is_pre_pandemic = FALSE) {
   } else {
     # Full scenario
     base <- cell_means %>%
+      filter(in_baseline(YearBin)) %>%
       group_by(AgeGroup) %>%
       summarise(x_base = mean(frac_away, na.rm = TRUE),
                 y_base = mean(mean_dist,  na.rm = TRUE), .groups = "drop")
@@ -429,7 +442,11 @@ p_fan_full <- ggplot() +
   scale_color_manual(values = age_colours, name = "Age group") +
   scale_x_continuous(labels = label_percent(accuracy = 1)) +
   labs(
-    title    = "Drift vector stability: 500 bootstrap resamples (2022-2024 vs baseline)",
+    title    = if (SCENARIO == "baseline")
+                 "Drift vector stability: 500 bootstrap resamples (2022-2024 vs baseline)"
+               else
+                 paste0("Drift vector stability (2022-2024 vs baseline): ",
+                        get_scenario_label(SCENARIO)),
     subtitle = paste0(
       "Faint arrows: session-level bootstrap resamples (n = ", B, "). ",
       "Thick arrows: KDE-based point estimates. Diamond = 2007-2024 baseline."
@@ -445,9 +462,13 @@ p_fan_full <- ggplot() +
     panel.border    = element_rect(color = "gray80", fill = NA, linewidth = 0.4)
   )
 
-overleaf_6a_path <- file.path(get_manuscript_fig_dir(), "Figure_R2_6a.png")
-ggsave(overleaf_6a_path, p_fan_full, width = 10, height = 7.5, dpi = 300)
-ggsave(file.path(OUT_DIR, "Figure_R2_6a.png"), p_fan_full, width = 10, height = 7.5, dpi = 300)
+ggsave(file.path(OUT_DIR, "drift_fan_full.png"), p_fan_full, width = 10, height = 7.5, dpi = 300)
+if (!is.na(MANUSCRIPT_FIGURE)) {
+  ggsave(file.path(get_manuscript_fig_dir(), MANUSCRIPT_FIGURE),
+         p_fan_full, width = 10, height = 7.5, dpi = 300)
+  cat("  exported as", MANUSCRIPT_FIGURE, "
+")
+}
 cat("  ✓ Figure_R2_6a.png saved to Overleaf and results\n")
 
 # ============================================================================
@@ -509,9 +530,10 @@ p_fan_pre <- ggplot() +
     panel.border    = element_rect(color = "gray80", fill = NA, linewidth = 0.4)
   )
 
-overleaf_s8_path <- file.path(get_manuscript_fig_dir(), "Figure_R2_S8.png")
-ggsave(overleaf_s8_path, p_fan_pre, width = 10, height = 7.5, dpi = 300)
-ggsave(file.path(OUT_DIR, "Figure_R2_S8.png"), p_fan_pre, width = 10, height = 7.5, dpi = 300)
+# Dropped from the supplement in favour of Supplementary Table S4; retained
+# here because the estimates remain a useful cross-check.
+ggsave(file.path(OUT_DIR, "drift_fan_prepandemic.png"), p_fan_pre,
+       width = 10, height = 7.5, dpi = 300)
 cat("  ✓ Figure_R2_S8.png saved to Overleaf and results\n")
 
 # ============================================================================

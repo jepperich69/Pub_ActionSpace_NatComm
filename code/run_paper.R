@@ -100,13 +100,15 @@ if (!manifest_only) {
              label = paste0("steps 2b-6 - scenario: ", s, " (", get_scenario_label(s), ")"))
   }
 
-  run_step("step5b_sex_drift.R",         label = "step5b - Supplementary Figure S5 panels")
   run_step("step4_integral_R2.R",        label = "step4 (R2) - Figure 5")
   run_step("step7_urban_robustness.R",   label = "step7 - Supplementary Figure S4")
-  # step8 still computes the pre-pandemic drift and writes it to
-  # results/uncertainty/. That figure was dropped from the supplement in
-  # favour of Supplementary Table S4, but the estimates remain available.
-  run_step("step8_uncertainty_R2.R",     label = "step8 (R2) - Figure 6a")
+  # Figure 6a and the two Supplementary Figure S5 panels are all produced by
+  # step8, one scenario at a time, so they share a visual template and a
+  # baseline instead of being drawn by different scripts.
+  for (s in c("baseline", "sex1", "sex2")) {
+    run_step("run_step8.R", s,
+             label = paste0("step8 (R2) - arrow fan: ", get_scenario_label(s)))
+  }
   run_step("step9_bandwidth_sensitivity.R", label = "step9 - Supplementary Figure S6, Table S3")
   run_step("check_drift_periods.R",      label = "check - drift period comparison table")
   run_step("step11_covid_departure.R",   label = "step11 - Supplementary Table S4, pandemic departures")
@@ -135,8 +137,8 @@ manifest <- rbind(
   data.frame(item = "Figure S2", file = file.path(fig_dir, "mean_time_shift.png"),                   owner = "step3_daytime.R"),
   data.frame(item = "Figure S3", file = file.path(fig_dir, "mean_distance_trend_TRIPWEIGHTED.png"),  owner = "step4_integral.R"),
   data.frame(item = "Figure S4", file = file.path(fig_dir, "urban_drift_comparison.png"),            owner = "step7_urban_robustness.R"),
-  data.frame(item = "Figure S5a", file = file.path(fig_dir, "drift_vectors_males.png"),              owner = "step5b_sex_drift.R"),
-  data.frame(item = "Figure S5b", file = file.path(fig_dir, "drift_vectors_females.png"),            owner = "step5b_sex_drift.R"),
+  data.frame(item = "Figure S5a", file = file.path(fig_dir, "drift_vectors_males.png"),              owner = "step8_uncertainty_R2.R"),
+  data.frame(item = "Figure S5b", file = file.path(fig_dir, "drift_vectors_females.png"),            owner = "step8_uncertainty_R2.R"),
   data.frame(item = "Figure S6", file = file.path(fig_dir, "bw_drift_bars.png"),                     owner = "step9_bandwidth_sensitivity.R"),
   data.frame(item = "Figure S7", file = file.path(fig_dir, "Figure_R2_S7.png"),                      owner = "step1_discriptive_stat.R"),
 

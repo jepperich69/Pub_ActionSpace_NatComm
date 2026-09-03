@@ -31,6 +31,33 @@ get_dirs <- function(scenario) {
 }
 
 
+# ---------------------------------------------------------------------------
+# Drift baseline
+# ---------------------------------------------------------------------------
+# The drift vectors in Figure 6a and Supplementary Figures S4 and S5 measure an
+# age group's final position against its baseline position, which is the
+# average of its per-period positions.
+#
+# The 2019-2021 bin spans the COVID-19 restrictions. Including it in that
+# average pulls the reference point toward a three-year anomaly and understates
+# the drift, so it is excluded. The 2022-2024 endpoint is deliberately kept:
+# removing the pandemic from the reference does not make the comparison
+# pandemic-free, and Supplementary Table S4 is what addresses persistence.
+#
+# Every script that forms this average must use the same definition. Four did
+# so independently before this was factored out, which is how the baseline came
+# to be labelled "Baseline (2007-2009)" while actually being a six-period mean.
+BASELINE_EXCLUDE <- c("2019-2021")
+BASELINE_LABEL   <- "Baseline (avg excl. 2019-2021)"
+
+# TRUE for period labels that contribute to the baseline average. Period labels
+# reach us with either a hyphen or an en-dash, so key on the digits.
+in_baseline <- function(period) {
+  d <- gsub("[^0-9]", "", period)
+  !(paste0(substr(d, 1, 4), "-", substr(d, 5, 8)) %in% BASELINE_EXCLUDE)
+}
+
+
 # Where scripts write the figure files the manuscript includes.
 #
 # Resolution order:
