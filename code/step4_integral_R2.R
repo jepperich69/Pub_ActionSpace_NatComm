@@ -299,7 +299,7 @@ p_heatmap_combined <- p_heatmap_dist / p_heatmap_time +
   plot_layout(guides = "collect") & 
   theme(legend.position = "right")
 
-overleaf_fig5_path <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_ActionSpace_NatComm/Overleaf_source/figures/Figure_R2_5.png"
+overleaf_fig5_path <- file.path(get_manuscript_fig_dir(), "Figure_R2_5.png")
 ggsave(overleaf_fig5_path, p_heatmap_combined, width = 10, height = 11, dpi = 300)
 ggsave(file.path(output_dir, "Figure_R2_5.png"), p_heatmap_combined, width = 10, height = 11, dpi = 300)
 cat("  ✓ Figure_R2_5.png (2-panel heatmap)\n\n")

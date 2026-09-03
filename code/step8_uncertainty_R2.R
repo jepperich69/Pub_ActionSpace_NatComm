@@ -53,6 +53,16 @@ SEED        <- 42
 HOME_CUTOFF <- 0.02   # km — must match step 2 / step 4
 AGE_LEVELS  <- c("10-17", "18-30", "31-55", "56-65", "66+")
 
+# Pre-pandemic comparison (Supplementary Figure S8).
+# Endpoint-to-endpoint: the first bin against the last bin ending before the
+# pandemic. This is the comparison Reviewer 2 asked for in comment 2.5.
+# It is deliberately NOT an endpoint-versus-window-mean contrast: averaging a
+# baseline over a window that contains the endpoint damps any monotone trend,
+# which is what suppressed the 18-30 pre-pandemic signal in the first version
+# of this figure.
+PRE_START <- "2007-2009"
+PRE_END   <- "2016-2018"
+
 set.seed(SEED)
 
 dirs    <- get_dirs(SCENARIO)
@@ -114,13 +124,11 @@ cat("  ✓ KDE drift vectors (full) loaded\n")
 pre_pandemic_periods <- c("2007-2009", "2010-2012", "2013-2015", "2016-2018")
 
 kde_baseline_pre <- period_rows %>%
-  filter(Period %in% pre_pandemic_periods) %>%
-  group_by(AgeGroup) %>%
-  summarise(x_base = mean(fraction_away),
-            y_base = mean(mean_distance_active), .groups = "drop")
+  filter(Period == PRE_START) %>%
+  select(AgeGroup, x_base = fraction_away, y_base = mean_distance_active)
 
 kde_endpoint_pre <- period_rows %>%
-  filter(Period == "2016-2018") %>%
+  filter(Period == PRE_END) %>%
   select(AgeGroup, x_end = fraction_away, y_end = mean_distance_active)
 
 kde_drift_pre <- kde_baseline_pre %>%
@@ -222,14 +230,13 @@ compute_drift_boot <- function(df, replicate_id, is_pre_pandemic = FALSE) {
     # Pre-pandemic scenario
     pre_pandemic_bins <- c("2007-2009", "2010-2012", "2013-2015", "2016-2018")
     cell_means <- cell_means %>% filter(YearBin %in% pre_pandemic_bins)
-    
+
     base <- cell_means %>%
-      group_by(AgeGroup) %>%
-      summarise(x_base = mean(frac_away, na.rm = TRUE),
-                y_base = mean(mean_dist,  na.rm = TRUE), .groups = "drop")
-                
+      filter(YearBin == PRE_START) %>%
+      select(AgeGroup, x_base = frac_away, y_base = mean_dist)
+
     ep <- cell_means %>%
-      filter(YearBin == "2016-2018") %>%
+      filter(YearBin == PRE_END) %>%
       select(AgeGroup, x_end = frac_away, y_end = mean_dist)
   } else {
     # Full scenario
@@ -336,7 +343,48 @@ out_summary <- kde_drift %>%
   mutate(across(where(is.numeric), ~ round(., 2)))
 
 write.csv(out_summary, file.path(OUT_DIR, "bootstrap_summary.csv"), row.names = FALSE)
-cat("  ✓ bootstrap_summary.csv saved\n\n")
+cat("  ✓ bootstrap_summary.csv saved\n")
+
+# Pre-pandemic point estimates and bootstrap intervals.
+# Written out because the response letter quotes these numbers; without them
+# nothing in results/ lets a reader check Supplementary Figure S8.
+pre_point <- kde_drift_pre %>%
+  select(AgeGroup, x_base, y_base, x_end, y_end, dx, dy, pct_change_distance)
+
+pre_ci <- boot_results_pre %>%
+  group_by(AgeGroup) %>%
+  summarise(
+    dx_lo = quantile(dx_centered, 0.025, na.rm = TRUE),
+    dx_hi = quantile(dx_centered, 0.975, na.rm = TRUE),
+    dy_lo = quantile(dy_centered, 0.025, na.rm = TRUE),
+    dy_hi = quantile(dy_centered, 0.975, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+pre_summary <- pre_point %>%
+  left_join(pre_ci, by = "AgeGroup") %>%
+  mutate(
+    dx_significant = (dx_lo > 0) | (dx_hi < 0),
+    dy_significant = (dy_lo > 0) | (dy_hi < 0)
+  )
+
+write.csv(pre_summary, file.path(OUT_DIR, "prepandemic_drift_summary.csv"),
+          row.names = FALSE)
+cat("  ✓ prepandemic_drift_summary.csv saved\n")
+
+write.csv(boot_results_pre %>%
+            select(replicate, AgeGroup, dx = dx_centered, dy = dy_centered),
+          file.path(OUT_DIR, "prepandemic_drift_replicates.csv"), row.names = FALSE)
+cat("  ✓ prepandemic_drift_replicates.csv saved\n")
+
+cat("\n--- Pre-pandemic drift (", PRE_START, " to ", PRE_END, ") ---\n", sep = "")
+print(as.data.frame(
+  pre_summary %>%
+    select(AgeGroup, dx, dx_lo, dx_hi, dx_significant,
+           dy, dy_lo, dy_hi, dy_significant) %>%
+    mutate(across(where(is.numeric), ~ round(., 4)))
+), row.names = FALSE)
+cat("\n")
 
 # ============================================================================
 # 8.  FIGURE 6A: BOOTSTRAP ARROW FAN (FULL PERIOD)
@@ -397,7 +445,7 @@ p_fan_full <- ggplot() +
     panel.border    = element_rect(color = "gray80", fill = NA, linewidth = 0.4)
   )
 
-overleaf_6a_path <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_ActionSpace_NatComm/Overleaf_source/figures/Figure_R2_6a.png"
+overleaf_6a_path <- file.path(get_manuscript_fig_dir(), "Figure_R2_6a.png")
 ggsave(overleaf_6a_path, p_fan_full, width = 10, height = 7.5, dpi = 300)
 ggsave(file.path(OUT_DIR, "Figure_R2_6a.png"), p_fan_full, width = 10, height = 7.5, dpi = 300)
 cat("  ✓ Figure_R2_6a.png saved to Overleaf and results\n")
@@ -445,10 +493,10 @@ p_fan_pre <- ggplot() +
   scale_color_manual(values = age_colours, name = "Age group") +
   scale_x_continuous(labels = label_percent(accuracy = 1)) +
   labs(
-    title    = "Pre-pandemic drift vector stability (2016-2018 vs baseline)",
+    title    = paste0("Pre-pandemic drift vectors (", PRE_START, " to ", PRE_END, ")"),
     subtitle = paste0(
       "Faint arrows: session-level bootstrap resamples (n = ", B, "). ",
-      "Thick arrows: KDE-based point estimates. Diamond = 2007-2018 baseline."
+      "Thick arrows: KDE-based point estimates. Diamond = ", PRE_START, " origin."
     ),
     x = "Fraction of day away from home",
     y = "Mean distance when away (km)"
@@ -461,7 +509,7 @@ p_fan_pre <- ggplot() +
     panel.border    = element_rect(color = "gray80", fill = NA, linewidth = 0.4)
   )
 
-overleaf_s8_path <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_ActionSpace_NatComm/Overleaf_source/figures/Figure_R2_S8.png"
+overleaf_s8_path <- file.path(get_manuscript_fig_dir(), "Figure_R2_S8.png")
 ggsave(overleaf_s8_path, p_fan_pre, width = 10, height = 7.5, dpi = 300)
 ggsave(file.path(OUT_DIR, "Figure_R2_S8.png"), p_fan_pre, width = 10, height = 7.5, dpi = 300)
 cat("  ✓ Figure_R2_S8.png saved to Overleaf and results\n")

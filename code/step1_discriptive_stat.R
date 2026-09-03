@@ -7,6 +7,8 @@ library(RODBC)
 library(dplyr)
 library(tidyr)
 
+source("code/utils_io.R")
+
 cat("\n=== LOADING DATA ===\n")
 
 # -------------------------------------------------------------------
@@ -186,7 +188,10 @@ print(summary_stats_3yr, n = Inf)
 # -------------------------------------------------------------------
 # 7. Save results (extended with 3-year bins)
 # -------------------------------------------------------------------
-output_dir <- "../results/baseline/"
+# Paths are relative to code/, the working directory every other step assumes.
+# This script previously used "../results/baseline/", which only resolved when
+# it was run from code/code/ — the reason it could not be added to the driver.
+output_dir <- "results/baseline/"
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
 # Calculate 95% CIs
@@ -377,7 +382,7 @@ combined_plot <- p1 + p2 + p3 +
   )
 
 # Save plots
-overleaf_fig_path <- "C:/Users/rich/OneDrive - Danmarks Tekniske Universitet/JR/Publikationer/Pub_ActionSpace_NatComm/Overleaf_source/figures/Figure_R2_S7.png"
+overleaf_fig_path <- file.path(get_manuscript_fig_dir(), "Figure_R2_S7.png")
 ggsave(overleaf_fig_path, combined_plot, width = 16, height = 5.5, dpi = 300)
 ggsave(paste0(output_dir, "Figure_R2_S7.png"), combined_plot, width = 16, height = 5.5, dpi = 300)
 cat("\n✓ Supplementary Figure S7 saved to:\n  ", overleaf_fig_path, "\n")

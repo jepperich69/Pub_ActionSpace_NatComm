@@ -29,3 +29,31 @@ get_dirs <- function(scenario) {
   if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
   list(in_dir = in_dir, out_dir = out_dir)
 }
+
+
+# Where scripts write the figure files the manuscript includes.
+#
+# Resolution order:
+#   1. ACTIONSPACE_FIG_DIR, if set
+#   2. ../Overleaf_source/figures, when this checkout sits beside the
+#      manuscript source (the author's working copy)
+#   3. results/figures_manuscript, otherwise
+#
+# Step 3 is what a fresh clone gets. Scripts previously hardcoded an absolute
+# path into the author's OneDrive, so every manuscript figure failed to export
+# on any other machine.
+get_manuscript_fig_dir <- function() {
+  fig_dir <- Sys.getenv("ACTIONSPACE_FIG_DIR", unset = "")
+
+  if (!nzchar(fig_dir)) {
+    overleaf <- file.path("..", "Overleaf_source", "figures")
+    fig_dir  <- if (dir.exists(overleaf)) {
+      overleaf
+    } else {
+      file.path("results", "figures_manuscript")
+    }
+  }
+
+  if (!dir.exists(fig_dir)) dir.create(fig_dir, recursive = TRUE)
+  fig_dir
+}
