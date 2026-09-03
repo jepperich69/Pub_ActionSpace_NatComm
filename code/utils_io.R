@@ -38,6 +38,14 @@ get_dirs <- function(scenario) {
 # age group's final position against its baseline position, which is the
 # average of its per-period positions.
 #
+# This exclusion applies to the DRIFT VECTORS ONLY. Figure 5 (the deviation
+# heatmap), Figure 6b (the trajectory panel) and the path-complexity statistics
+# in Supplementary Table S2 keep the full six-period average, because there the
+# pandemic period is part of what is being displayed rather than part of the
+# reference: you want to see the 2019-2021 deviation, not define it away.
+# Applying the exclusion to step 4's baseline row propagates it to all of them
+# and moves the path-complexity angles substantially.
+#
 # The 2019-2021 bin spans the COVID-19 restrictions. Including it in that
 # average pulls the reference point toward a three-year anomaly and understates
 # the drift, so it is excluded. The 2022-2024 endpoint is deliberately kept:
@@ -48,7 +56,25 @@ get_dirs <- function(scenario) {
 # so independently before this was factored out, which is how the baseline came
 # to be labelled "Baseline (2007-2009)" while actually being a six-period mean.
 BASELINE_EXCLUDE <- c("2019-2021")
-BASELINE_LABEL   <- "Baseline (avg excl. 2019-2021)"
+
+# DO NOT RENAME without regenerating Supplementary Table S2.
+#
+# This label is misleading: the row it names is the average of the per-period
+# positions, not the 2007-2009 period. It is kept anyway because step 5 orders
+# the sequential vector chain by parsing years out of the period label, so the
+# embedded "2007-2009" is what places the baseline at the start of the
+# trajectory. Renaming it to "Baseline (period average)" leaves nothing to
+# parse, the baseline sorts to the end instead, and the path-complexity angles
+# in Supplementary Table S2 change substantially (18-30 mean resultant length
+# 0.583 -> 0.195).
+#
+# Two things are worth separating here. The label is cosmetic. The ordering
+# behaviour behind it is not: it inserts a six-period average into the timeline
+# at the position where the 2007-2009 period belongs, so the first segment of
+# every path runs from an average rather than from the first observation. That
+# is a question about Supplementary Table S2, not about the drift vectors, and
+# is left alone here.
+BASELINE_LABEL   <- "Baseline (2007-2009)"
 
 # TRUE for period labels that contribute to the baseline average. Period labels
 # reach us with either a hyphen or an en-dash, so key on the digits.

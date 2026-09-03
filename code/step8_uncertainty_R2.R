@@ -449,7 +449,7 @@ p_fan_full <- ggplot() +
                         get_scenario_label(SCENARIO)),
     subtitle = paste0(
       "Faint arrows: session-level bootstrap resamples (n = ", B, "). ",
-      "Thick arrows: KDE-based point estimates. Diamond = 2007-2024 baseline."
+      "Thick arrows: KDE-based point estimates. Diamond = period-average baseline, excl. 2019-2021."
     ),
     x = "Fraction of day away from home",
     y = "Mean distance when away (km)"

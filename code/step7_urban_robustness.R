@@ -243,7 +243,7 @@ p_panels <- ggplot(drift_all, aes(color = AgeGroup)) +
   labs(
     title    = "Drift vector robustness across urban restriction thresholds",
     subtitle = paste0(
-      "Each arrow: period-averaged baseline (diamond) \u2192 2022\u20132024 endpoint.\n",
+      "Each arrow: period-average baseline excl. 2019-2021 (diamond) \u2192 2022\u20132024 endpoint.\n",
       "Identical axis scales across panels. Colour = age group."
     ),
     x = "Fraction of day away from home",

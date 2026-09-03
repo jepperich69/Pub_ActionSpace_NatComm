@@ -127,7 +127,6 @@ cat("\n")
 cat("Computing baseline as arithmetic mean across periods...\n")
 
 baseline_metrics_mean <- yearbin_metrics %>%
-  filter(in_baseline(Period)) %>%
   group_by(AgeGroup) %>%
   summarise(
     fraction_away = mean(fraction_away),
