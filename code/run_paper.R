@@ -103,10 +103,14 @@ if (!manifest_only) {
   run_step("step5b_sex_drift.R",         label = "step5b - Supplementary Figure S5 panels")
   run_step("step4_integral_R2.R",        label = "step4 (R2) - Figure 5")
   run_step("step7_urban_robustness.R",   label = "step7 - Supplementary Figure S4")
-  run_step("step8_uncertainty_R2.R",     label = "step8 (R2) - Figure 6a, Supplementary Figure S8")
+  # step8 still computes the pre-pandemic drift and writes it to
+  # results/uncertainty/. That figure was dropped from the supplement in
+  # favour of Supplementary Table S4, but the estimates remain available.
+  run_step("step8_uncertainty_R2.R",     label = "step8 (R2) - Figure 6a")
   run_step("step9_bandwidth_sensitivity.R", label = "step9 - Supplementary Figure S6, Table S3")
   run_step("check_drift_periods.R",      label = "check - drift period comparison table")
-  run_step("step10_collect_figures.R",   label = "step10 - collect manuscript figures")
+  run_step("step11_covid_departure.R",   label = "step11 - Supplementary Table S4, pandemic departures")
+  run_step("step10_collect_figures.R",   label = "step10 - collect manuscript figures and tables")
 }
 
 # ============================================================================
@@ -135,13 +139,14 @@ manifest <- rbind(
   data.frame(item = "Figure S5b", file = file.path(fig_dir, "drift_vectors_females.png"),            owner = "step5b_sex_drift.R"),
   data.frame(item = "Figure S6", file = file.path(fig_dir, "bw_drift_bars.png"),                     owner = "step9_bandwidth_sensitivity.R"),
   data.frame(item = "Figure S7", file = file.path(fig_dir, "Figure_R2_S7.png"),                      owner = "step1_discriptive_stat.R"),
-  data.frame(item = "Figure S8", file = file.path(fig_dir, "Figure_R2_S8.png"),                      owner = "step8_uncertainty_R2.R"),
+
 
   # ---- tables ----
   data.frame(item = "Table 1",   file = "results/baseline/table_main1_descriptive.tex",              owner = NA),
   data.frame(item = "Table S1",  file = "results/baseline/table_s1_descriptive.tex",                 owner = "step1_discriptive_stat.R"),
   data.frame(item = "Table S2",  file = "results/baseline/table_path_complexity.tex",                owner = "step6_final_plots.R"),
-  data.frame(item = "Table S3",  file = "results/bandwidth_sensitivity/table_bandwidth_drift.tex",   owner = NA)
+  data.frame(item = "Table S3",  file = "results/bandwidth_sensitivity/table_bandwidth_drift.tex",   owner = NA),
+  data.frame(item = "Table S4",  file = "results/baseline/table_s4_covid_departure.tex",             owner = "step11_covid_departure.R")
 )
 
 manifest$present <- file.exists(manifest$file)

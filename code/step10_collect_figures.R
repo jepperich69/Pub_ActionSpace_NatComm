@@ -61,6 +61,26 @@ for (f in figures) {
 cat("\nCollected", length(figures) - length(missing), "of", length(figures),
     "figures into", fig_dir, "\n")
 
+# Generated LaTeX tables that the manuscript \input directly. Supplementary
+# Table S4 is the only one wired up this way so far; the other three are still
+# hand-formatted in the LaTeX source and are reported UNOWNED by run_paper.R.
+tables <- list(
+  list(item = "Table S4", src = "results/baseline/table_s4_covid_departure.tex")
+)
+
+tab_dir <- file.path(dirname(fig_dir), "tables")
+if (!dir.exists(tab_dir)) dir.create(tab_dir, recursive = TRUE)
+
+for (t in tables) {
+  if (!file.exists(t$src)) {
+    cat("  x", t$item, "- missing input:", t$src, "\n")
+    next
+  }
+  if (!file.copy(t$src, file.path(tab_dir, basename(t$src)), overwrite = TRUE))
+    stop("Failed to write ", t$item)
+  cat("  ✓", t$item, "->", basename(t$src), "\n")
+}
+
 if (length(missing)) {
   cat("\nMissing inputs. Run the earlier steps first:\n")
   for (m in missing) cat("  -", m, "\n")
