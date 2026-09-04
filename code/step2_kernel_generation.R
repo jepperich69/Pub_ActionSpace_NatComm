@@ -53,8 +53,11 @@ if (!grepl("/$", output_dir)) output_dir <- paste0(output_dir, "/")
 R_MAX <- 60        # km (radial distance grid max)
 N_T   <- 96        # time bins (24h * 4 = 15-min bins)
 N_D   <- 96        # distance bins
-H_T   <- 1         # hours bandwidth
+if (!exists("H_T")) H_T <- 1  # hours bandwidth — override in wrapper scripts
 if (!exists("H_D")) H_D <- 5  # km bandwidth (away only) — override in wrapper scripts
+# Post-hoc smoothing of the marginal temporal profiles (Figure 4, Figs S1/S2).
+# Independent of H_T, which enters the 2D kernels only.
+if (!exists("SIGMA_HOURS")) SIGMA_HOURS <- 0.5
 MAX_PER_GROUP <- 120000   # cap for runtime (weighted subsample if larger)
 HOME_ZERO_CUTOFF <- 0.02  # km: <= this is "home" (tight to avoid losing short trips)
 dt <- 24 / N_T
@@ -751,7 +754,7 @@ cat("    Year-bin: ", nrow(temporal_yearbin_away), " rows, ",
 
 # --- Apply temporal smoothing ---
 cat("  Applying temporal smoothing...\n")
-smooth_temporal <- function(df, sigma_hours = 0.5) {
+smooth_temporal <- function(df, sigma_hours = SIGMA_HOURS) {
   sigma_bins <- sigma_hours / dt
   win <- ceiling(6 * sigma_bins)
   if (win %% 2 == 0) win <- win + 1
