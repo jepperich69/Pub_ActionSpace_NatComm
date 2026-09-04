@@ -16,8 +16,3 @@ Rplots.pdf
 # OS
 .DS_Store
 Thumbs.db
-
-# Session-level microdata grid: 6.4M rows keyed by SessionId with exact age,
-# sex, municipality and car ownership. Never publish. See FINDINGS.md.
-grid_mv_step2.rds
-**/grid_mv_step2.rds
