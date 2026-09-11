@@ -1,0 +1,6 @@
+"AgeGroup","distance_interpretation","time_interpretation","overall_trend","magnitude"
+"10-17","EXPANDING: +0.53 km (+12.9%)","-2.1% less time away","Traveling further, similar time",0.52655643287663
+"18-30","STABLE: 0.52 km (+5.5%)","-5.8% less time away","Relatively stable",0.520416178343165
+"31-55","STABLE: 0.48 km (+4.3%)","-5.5% less time away","Relatively stable",0.478896605629802
+"56-65","EXPANDING: +1.38 km (+12.7%)","+5% more time away","Expanding both space & time",1.38094819487071
+"66+","STABLE: 0.17 km (+1.9%)","+5.8% more time away","Relatively stable",0.169521233424995

@@ -1,0 +1,27 @@
+
+=== BUILD SUPPLEMENTARY TABLE BODIES ===
+
+  ok table_s4_covid_departure.tex -> _scratch_figs/tables/table_s4_covid_departure.tex 
+  ok table_s5_path_complexity.tex -> _scratch_figs/tables/table_s5_path_complexity.tex 
+  ok table_s6_bw_sensitivity.tex -> _scratch_figs/tables/table_s6_bw_sensitivity.tex 
+  ok table_s7_ht_sensitivity.tex -> _scratch_figs/tables/table_s7_ht_sensitivity.tex 
+  ok table_s8_marginals.tex -> _scratch_figs/tables/table_s8_marginals.tex 
+
+Supplementary table bodies written to results/tables and _scratch_figs/tables 
+
+=== STEP 10: COLLECT MANUSCRIPT FIGURES ===
+
+  ✓ Figure 2 -> kde_YEARBIN_comparison_FIXED.png 
+  ✓ Figure 3 -> kde_DIFFERENCE_by_cohort_SHARP.png 
+  ✓ Figure 4 -> temporal_profiles_all_ages.png 
+  ✓ Figure 6b -> action_space_trajectory_TRIPWEIGHTED.png 
+  ✓ Figure S1 -> window_shifts.png 
+  ✓ Figure S2 -> mean_time_shift.png 
+  ✓ Figure S3 -> mean_distance_trend_TRIPWEIGHTED.png 
+  ✓ Figure S4 -> urban_drift_comparison.png 
+  ✓ Figure S6 -> bw_drift_bars.png 
+
+Collected 9 of 9 figures into _scratch_figs/figures 
+  ✓ Table S4 -> table_s4_covid_departure.tex 
+=== STEP 10 COMPLETE ===
+

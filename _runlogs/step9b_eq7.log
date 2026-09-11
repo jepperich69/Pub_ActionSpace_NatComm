@@ -1,0 +1,68 @@
+
+=== STEP 9b: Temporal Bandwidth Sensitivity Analysis ===
+
+Loading H_T = 0.5 h ...
+  Rows: 276480 
+  Eq. (7) reference: 'base5' over 5 periods, per age group
+Loading H_T = 1 h (baseline) ...
+  Rows: 276480 
+  Eq. (7) reference: 'base5' over 5 periods, per age group
+Loading H_T = 2 h ...
+  Rows: 276480 
+  Eq. (7) reference: 'base5' over 5 periods, per age group
+Advarselsbesked:
+I compute_cell_metrics(dat, HOME_CUTOFF) :
+  Eq. (7): 21 slice(s) carry no away mass and enter the fixed-weight mean as zero distance.
+
+Metrics computed. Periods found: 2007-2009, 2010-2012, 2013-2015, 2016-2018, 2019-2021, 2022-2024 
+
+Drift in final period (2022-2024):
+# A tibble: 15 × 4
+   AgeGroup bw_label             drift_distance drift_fraction
+   <fct>    <chr>                         <dbl>          <dbl>
+ 1 10-17    H_T = 1 h (baseline)         0.290        -0.00477
+ 2 10-17    H_T = 0.5 h                  0.296        -0.00476
+ 3 10-17    H_T = 2 h                    0.287        -0.00477
+ 4 18-30    H_T = 1 h (baseline)         0.483        -0.0145 
+ 5 18-30    H_T = 0.5 h                  0.484        -0.0145 
+ 6 18-30    H_T = 2 h                    0.482        -0.0145 
+ 7 31-55    H_T = 1 h (baseline)         0.777        -0.0141 
+ 8 31-55    H_T = 0.5 h                  0.779        -0.0141 
+ 9 31-55    H_T = 2 h                    0.776        -0.0141 
+10 56-65    H_T = 1 h (baseline)         1.57          0.0161 
+11 56-65    H_T = 0.5 h                  1.56          0.0161 
+12 56-65    H_T = 2 h                    1.57          0.0161 
+13 66+      H_T = 1 h (baseline)         0.0866        0.00364
+14 66+      H_T = 0.5 h                  0.0820        0.00364
+15 66+      H_T = 2 h                    0.0890        0.00364
+
+Saved: ht_drift_bars.png
+Saved: ht_drift_summary.csv
+Saved: table_ht_sensitivity.tex
+
+=== TEMPORAL BANDWIDTH DRIFT SUMMARY (final period) ===
+
+Distance when away (km):
+# A tibble: 5 × 4
+  AgeGroup baseline   ht05   ht20
+  <fct>       <dbl>  <dbl>  <dbl>
+1 10-17      0.290  0.296  0.287 
+2 18-30      0.483  0.484  0.482 
+3 31-55      0.777  0.779  0.776 
+4 56-65      1.57   1.56   1.57  
+5 66+        0.0866 0.0820 0.0890
+
+Fraction of day away:
+# A tibble: 5 × 4
+  AgeGroup baseline   ht05   ht20
+  <fct>       <dbl>  <dbl>  <dbl>
+1 10-17      -0.477 -0.476 -0.477
+2 18-30      -1.45  -1.45  -1.45 
+3 31-55      -1.41  -1.41  -1.41 
+4 56-65       1.61   1.61   1.61 
+5 66+         0.364  0.364  0.364
+
+All signs stable across temporal bandwidths: TRUE
+
+=== STEP 9b COMPLETE ===
+Outputs in:  ./results/bandwidth_sensitivity 

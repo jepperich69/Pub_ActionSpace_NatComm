@@ -1,0 +1,85 @@
+
+=== STEP 8: BOOTSTRAP ARROW-FAN UNCERTAINTY (R2 VERSION) ===
+
+Scenario   : baseline 
+Replicates : 500 
+
+Loading step 4 KDE-based point estimates...
+  ✓ KDE drift vectors (full) loaded
+  ✓ KDE drift vectors (pre-pandemic) loaded
+
+Loading grid_mv_step2.rds...
+  ✓ Loaded: 11,260,800 rows, 117,300 sessions
+
+Collapsing to session-level summaries...
+  ✓ 117,300 session-level rows across 6 year-bins
+
+Running 500 bootstrap replicates (Full Scenario)...
+  ✓ Full Scenario Bootstrap complete
+
+Running 500 bootstrap replicates (Pre-Pandemic)...
+  ✓ Pre-Pandemic Bootstrap complete
+
+  ✓ bootstrap_summary.csv saved
+  ✓ prepandemic_drift_summary.csv saved
+  ✓ prepandemic_drift_replicates.csv saved
+
+--- Pre-pandemic drift (2007-2009 to 2016-2018) ---
+ AgeGroup      dx   dx_lo   dx_hi dx_significant     dy   dy_lo   dy_hi
+    10-17  0.0117  0.0026  0.0207           TRUE 1.5076  0.5522  2.4447
+    18-30 -0.0146 -0.0254 -0.0038           TRUE 1.3644  0.2244  2.5559
+    31-55  0.0075  0.0011  0.0134           TRUE 1.0210  0.2323  1.9375
+    56-65  0.0303  0.0191  0.0407           TRUE 0.6336 -0.7032  2.0962
+      66+  0.0053 -0.0011  0.0119          FALSE 9.5270  8.4653 10.6312
+ dy_significant
+           TRUE
+           TRUE
+           TRUE
+          FALSE
+           TRUE
+
+Creating Figure_R2_6a.png...
+  exported as Figure_R2_6a.png 
+  ✓ Figure_R2_6a.png saved to Overleaf and results
+Creating Figure_R2_S8.png...
+  ✓ Figure_R2_S8.png saved to Overleaf and results
+Creating diagnostic % change distribution plot...
+  ✓ bootstrap_pct_change.png saved
+
+=== STEP 8 COMPLETE: Bootstrap Arrow-Fan Uncertainty (R2 Version) ===
+
+
+=== STEP 11: DEPARTURE FROM PRE-PANDEMIC TREND ===
+
+  Sessions: 117,300 
+
+Running 500 bootstrap replicates...
+  Bootstrap complete
+
+  covid_departure.csv saved
+ AgeGroup    metric dep_1921 dep_1921_lo dep_1921_hi sig_1921 dep_2224
+    10-17 frac_away   -3.538      -4.647      -2.303     TRUE   -2.831
+    18-30 frac_away   -1.699      -2.976      -0.468     TRUE   -1.083
+    31-55 frac_away   -3.459      -4.238      -2.645     TRUE   -3.315
+    56-65 frac_away   -0.663      -2.037       0.562    FALSE   -1.195
+      66+ frac_away   -0.334      -1.154       0.432    FALSE   -0.172
+    10-17 mean_dist    0.193      -0.812       1.247    FALSE    0.085
+    18-30 mean_dist   -0.385      -1.905       0.923    FALSE    0.015
+    31-55 mean_dist   -1.767      -2.854      -0.702     TRUE   -2.134
+    56-65 mean_dist   -0.838      -2.770       1.155    FALSE   -0.548
+      66+ mean_dist    0.518      -0.886       1.851    FALSE   -0.037
+ dep_2224_lo dep_2224_hi sig_2224
+      -4.223      -1.366     TRUE
+      -2.761       0.456    FALSE
+      -4.174      -2.344     TRUE
+      -2.806       0.372    FALSE
+      -1.095       0.732    FALSE
+      -1.048       1.295    FALSE
+      -1.861       1.659    FALSE
+      -3.521      -0.747     TRUE
+      -2.952       1.876    FALSE
+      -1.844       1.467    FALSE
+  table_s4_covid_departure.tex saved
+
+=== STEP 11 COMPLETE ===
+

@@ -1,0 +1,90 @@
+
+Vedhæfter pakke: 'dplyr'
+
+De følgende objekter er maskerede fra 'package:stats':
+
+    filter, lag
+
+De følgende objekter er maskerede fra 'package:base':
+
+    intersect, setdiff, setequal, union
+
+Indlæser krævet pakke: viridisLite
+
+Vedhæfter pakke: 'scales'
+
+Det følgende objekt er maskeret fra 'package:viridis':
+
+    viridis_pal
+
+
+=== STEP 3: TEMPORAL ANALYSIS ===
+
+Loading from:  data/kernels/baseline 
+Saving to:     results/baseline 
+
+  ✓ Loaded files
+  Baseline: 480 rows
+  Year-bin: 2880 rows
+
+Computing temporal statistics...
+  ✓ Baseline statistics ( 5  rows)
+# A tibble: 5 × 10
+  AgeGroup mean_hour median_hour peak_hour morning_6_12 midday_12_18
+  <fct>        <dbl>       <dbl>     <dbl>        <dbl>        <dbl>
+1 10-17         12.9        12.1      11.1        0.462        0.420
+2 18-30         13.5        13.1      11.9        0.379        0.454
+3 31-55         12.8        12.4      11.4        0.436        0.457
+4 56-65         12.9        12.4      11.4        0.429        0.453
+5 66+           14.1        13.6      11.4        0.325        0.493
+# ℹ 4 more variables: evening_18_24 <dbl>, total_away <dbl>, sd_hour <dbl>,
+#   Period <chr>
+
+  ✓ Year-bin statistics ( 30  rows)
+# A tibble: 10 × 10
+   AgeGroup Period    mean_hour median_hour peak_hour morning_6_12 midday_12_18
+   <fct>    <fct>         <dbl>       <dbl>     <dbl>        <dbl>        <dbl>
+ 1 10-17    2007–2009      13.0        12.1      10.9        0.454        0.413
+ 2 10-17    2010–2012      13.0        12.1      10.9        0.461        0.404
+ 3 10-17    2013–2015      12.8        12.1      11.4        0.466        0.418
+ 4 10-17    2016–2018      12.8        12.1      11.9        0.457        0.437
+ 5 10-17    2019–2021      12.7        12.1      11.6        0.472        0.425
+ 6 10-17    2022–2024      12.8        12.1      11.6        0.464        0.424
+ 7 18-30    2007–2009      13.7        13.1      12.1        0.366        0.449
+ 8 18-30    2010–2012      13.6        13.1      11.9        0.375        0.442
+ 9 18-30    2013–2015      13.6        13.1      11.9        0.376        0.458
+10 18-30    2016–2018      13.5        13.1      12.4        0.376        0.461
+# ℹ 3 more variables: evening_18_24 <dbl>, total_away <dbl>, sd_hour <dbl>
+
+Computing shifts from baseline...
+  ✓ Shifts computed ( 30  rows)
+# A tibble: 10 × 10
+   AgeGroup Period shift_mean shift_median shift_peak shift_morning shift_midday
+   <fct>    <fct>       <dbl>        <dbl>      <dbl>         <dbl>        <dbl>
+ 1 10-17    2007–…    0.158              0     -0.253     -0.00750      -0.00759
+ 2 10-17    2010–…    0.103              0     -0.253     -0.000913     -0.0162 
+ 3 10-17    2013–…   -0.0372             0      0.253      0.00355      -0.00184
+ 4 10-17    2016–…   -0.0445             0      0.758     -0.00467       0.0170 
+ 5 10-17    2019–…   -0.145              0      0.505      0.00955       0.00525
+ 6 10-17    2022–…   -0.0633             0      0.505      0.00241       0.00355
+ 7 18-30    2007–…    0.179              0      0.253     -0.0132       -0.00423
+ 8 18-30    2010–…    0.110              0      0         -0.00423      -0.0114 
+ 9 18-30    2013–…    0.0234             0      0         -0.00335       0.00442
+10 18-30    2016–…    0.00168            0      0.505     -0.00343       0.00711
+# ℹ 3 more variables: shift_evening <dbl>, shift_total_away <dbl>,
+#   shift_sd <dbl>
+
+Creating plots...
+  ✓ temporal_profiles_all_ages.png
+  ✓ mean_time_shift.png
+  ✓ window_shifts.png
+  ✓ heatmap_time_shift.png
+  ✓ peak_time_shift.png
+
+Saving data tables...
+  ✓ temporal_shifts.csv
+  ✓ temporal_statistics.csv
+
+======================================================================
+STEP 3 COMPLETE!
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 

@@ -1,0 +1,130 @@
+
+=== Eq. (7) REFERENCE-PROFILE SENSITIVITY ===
+
+Scenario   : baseline
+Replicates : 500
+References : pooled6, base5, first, last, allages
+
+Loading grid_mv_step2.rds...
+  loaded 11,072,448 rows, 115,338 sessions
+Preparing 30 age-period cells...
+  30 of 30 cells prepared
+
+Point estimates...
+Bootstrapping 500 replicates .................... done in 5.3 min
+
+--- % DRIFT IN MEAN DISTANCE WHEN AWAY, five-period baseline -> 2022-2024 ---
+
+all             
+   31-55   14.83%  [  6.75,  32.55]  width  25.80 *
+   56-65   13.23%  [  1.20,  28.13]  width  26.93 *
+   10-17   11.67%  [-11.48,  24.90]  width  36.38  
+   66+      7.13%  [-15.47,  36.75]  width  52.22  
+   18-30    6.58%  [-11.32,  13.49]  width  24.81  
+   ordering: 31-55 > 56-65 > 10-17 > 66+ > 18-30
+
+fixed:pooled6   
+   56-65   12.93%  [  7.34,  18.60]  width  11.27 *
+   31-55    6.60%  [  3.66,   9.50]  width   5.85 *
+   18-30    5.77%  [  0.61,  10.39]  width   9.78 *
+   10-17    5.62%  [ -0.12,  11.91]  width  12.04  
+   66+      2.86%  [ -4.15,  10.98]  width  15.13  
+   ordering: 56-65 > 31-55 > 18-30 > 10-17 > 66+
+
+fixed:base5     
+   56-65   12.91%  [  7.30,  18.56]  width  11.26 *
+   31-55    6.61%  [  3.65,   9.51]  width   5.85 *
+   18-30    5.77%  [  0.61,  10.39]  width   9.78 *
+   10-17    5.75%  [ -0.02,  12.06]  width  12.08  
+   66+      2.92%  [ -4.06,  11.03]  width  15.09  
+   ordering: 56-65 > 31-55 > 18-30 > 10-17 > 66+
+
+fixed:first     
+   56-65   12.81%  [  7.23,  18.41]  width  11.18 *
+   31-55    6.63%  [  3.65,   9.52]  width   5.86 *
+   10-17    6.37%  [  0.59,  12.72]  width  12.13 *
+   18-30    5.78%  [  0.66,  10.42]  width   9.75 *
+   66+      2.65%  [ -4.58,  10.78]  width  15.36  
+   ordering: 56-65 > 31-55 > 10-17 > 18-30 > 66+
+
+fixed:last      
+   56-65   13.24%  [  7.55,  19.00]  width  11.45 *
+   31-55    6.58%  [  3.68,   9.50]  width   5.83 *
+   18-30    5.76%  [  0.68,  10.31]  width   9.63 *
+   10-17    5.29%  [ -0.51,  11.55]  width  12.06  
+   66+      2.87%  [ -4.24,  10.93]  width  15.17  
+   ordering: 56-65 > 31-55 > 18-30 > 10-17 > 66+
+
+fixed:allages   
+   56-65   12.38%  [  6.86,  18.04]  width  11.18 *
+   31-55    6.66%  [  3.70,   9.68]  width   5.98 *
+   10-17    6.47%  [  0.58,  13.05]  width  12.46 *
+   18-30    5.71%  [  0.66,  10.27]  width   9.61 *
+   66+      4.28%  [ -2.92,  12.16]  width  15.08  
+   ordering: 56-65 > 31-55 > 10-17 > 18-30 > 66+
+
+marginal        
+   56-65   13.05%  [  7.41,  18.87]  width  11.46 *
+   31-55    6.68%  [  3.77,   9.59]  width   5.82 *
+   18-30    6.10%  [  1.01,  10.73]  width   9.72 *
+   10-17    4.70%  [ -1.32,  10.96]  width  12.28  
+   66+      2.77%  [ -4.24,  10.92]  width  15.16  
+   ordering: 56-65 > 31-55 > 18-30 > 10-17 > 66+
+
+--- POINT ESTIMATE BY REFERENCE (% drift) ---
+
+ AgeGroup       all fixed:pooled6 fixed:base5 fixed:first fixed:last
+    10-17 11.673572      5.619521    5.750681    6.367851   5.289140
+    18-30  6.578440      5.770881    5.771187    5.784413   5.758375
+    31-55 14.834881      6.598920    6.609408    6.627213   6.578098
+    56-65 13.232023     12.929792   12.905109   12.812609  13.235242
+      66+  7.133642      2.857774    2.916051    2.648437   2.869222
+ fixed:allages  marginal
+      6.469765  4.702367
+      5.710479  6.098834
+      6.658389  6.683173
+     12.376811 13.052041
+      4.278187  2.773537
+
+--- SPREAD ACROSS REFERENCES vs SAMPLING NOISE ---
+    spread_over_sd < 1 means the choice of reference matters less than
+    one bootstrap standard error.
+
+ AgeGroup   min_pct   max_pct  spread_pp pooled6_pct  boot_sd  ci_width
+    10-17  5.289140  6.469765 1.18062556    5.619521 3.101677 12.035158
+    18-30  5.710479  5.784413 0.07393388    5.770881 2.551890  9.777796
+    31-55  6.578098  6.658389 0.08029119    6.598920 1.544238  5.845694
+    56-65 12.376811 13.235242 0.85843063   12.929792 2.858178 11.267254
+      66+  2.648437  4.278187 1.62974954    2.857774 3.809459 15.126197
+ spread_over_sd spread_over_ci
+     0.38064098    0.098098056
+     0.02897221    0.007561406
+     0.05199405    0.013735100
+     0.30034191    0.076188094
+     0.42781652    0.107743508
+
+--- ORDERING BY REFERENCE (rank 1 = largest expansion) ---
+
+ AgeGroup all fixed:pooled6 fixed:base5 fixed:first fixed:last fixed:allages
+    10-17   3             4           4           3          4             3
+    18-30   5             3           3           4          3             4
+    31-55   1             2           2           2          2             2
+    56-65   2             1           1           1          1             1
+      66+   4             5           5           5          5             5
+ marginal
+        4
+        3
+        2
+        1
+        5
+
+--- LASPEYRES vs PAASCHE (first-period vs last-period weights) ---
+
+ AgeGroup fixed:first fixed:last      gap_pp
+    10-17    6.367851   5.289140 -1.07871108
+    18-30    5.784413   5.758375 -0.02603770
+    31-55    6.627213   6.578098 -0.04911481
+    56-65   12.812609  13.235242  0.42263241
+      66+    2.648437   2.869222  0.22078493
+
+Written to results/sensitivity/eq7_reference

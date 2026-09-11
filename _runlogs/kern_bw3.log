@@ -1,0 +1,312 @@
+
+############ STEP 2 SCENARIO: bw3 ############
+Restrictions:  H_D = 3 
+
+
+Vedhæfter pakke: 'dplyr'
+
+De følgende objekter er maskerede fra 'package:stats':
+
+    filter, lag
+
+De følgende objekter er maskerede fra 'package:base':
+
+    intersect, setdiff, setequal, union
+
+Indlæser krævet pakke: viridisLite
+
+Vedhæfter pakke: 'data.table'
+
+De følgende objekter er maskerede fra 'package:dplyr':
+
+    between, first, last
+
+
+Vedhæfter pakke: 'MASS'
+
+Det følgende objekt er maskeret fra 'package:dplyr':
+
+    select
+
+
+=== STEP 2: Action-Space KDE & Differences ===
+Loaded: 673583 trips, 230326 sessions
+Removed 6440 sessions with missing GIS
+Removed 1140 sessions with missing/non-positive SessionWeight
+Grid created: 11072448 rows
+
+=== RAW GRID CHECK (before KDE) ===
+# A tibble: 30 × 4
+   AgeGroup YearBin   mean_hours_away_grid share_no_travel_grid
+   <chr>    <chr>                    <dbl>                <dbl>
+ 1 10-17    2007–2009                 7.40                    0
+ 2 10-17    2010–2012                 7.30                    0
+ 3 10-17    2013–2015                 7.39                    0
+ 4 10-17    2016–2018                 7.80                    0
+ 5 10-17    2019–2021                 6.83                    0
+ 6 10-17    2022–2024                 7.12                    0
+ 7 18-30    2007–2009                 7.42                    0
+ 8 18-30    2010–2012                 7.18                    0
+ 9 18-30    2013–2015                 7.16                    0
+10 18-30    2016–2018                 7.25                    0
+11 18-30    2019–2021                 6.41                    0
+12 18-30    2022–2024                 6.68                    0
+13 31-55    2007–2009                 7.23                    0
+14 31-55    2010–2012                 7.12                    0
+15 31-55    2013–2015                 7.26                    0
+16 31-55    2016–2018                 7.47                    0
+17 31-55    2019–2021                 6.64                    0
+18 31-55    2022–2024                 6.73                    0
+19 56-65    2007–2009                 5.23                    0
+20 56-65    2010–2012                 5.13                    0
+21 56-65    2013–2015                 5.27                    0
+22 56-65    2016–2018                 6.06                    0
+23 56-65    2019–2021                 5.81                    0
+24 56-65    2022–2024                 5.94                    0
+25 66+      2007–2009                 2.27                    0
+26 66+      2010–2012                 2.17                    0
+27 66+      2013–2015                 2.15                    0
+28 66+      2016–2018                 2.44                    0
+29 66+      2019–2021                 2.28                    0
+30 66+      2022–2024                 2.35                    0
+
+Estimating baseline KDEs...
+   10-17 N= 1410624 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   18-30 N= 1707360 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   31-55 N= 4253376 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   56-65 N= 1716192 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   66+ N= 1984896 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+
+Estimating year-bin KDEs...
+   10-17 - 2007–2009  N= 319296 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   10-17 - 2010–2012  N= 358176 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   10-17 - 2013–2015  N= 176640 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   10-17 - 2016–2018  N= 215808 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   10-17 - 2019–2021  N= 160224 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   10-17 - 2022–2024  N= 180480 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   18-30 - 2007–2009  N= 326208 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   18-30 - 2010–2012  N= 356160 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   18-30 - 2013–2015  N= 228864 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   18-30 - 2016–2018  N= 249216 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   18-30 - 2019–2021  N= 246528 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   18-30 - 2022–2024  N= 300384 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   31-55 - 2007–2009  N= 960384 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   31-55 - 2010–2012  N= 1070016 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   31-55 - 2013–2015  N= 558144 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   31-55 - 2016–2018  N= 561792 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   31-55 - 2019–2021  N= 500832 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   31-55 - 2022–2024  N= 602208 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   56-65 - 2007–2009  N= 396768 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   56-65 - 2010–2012  N= 463392 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   56-65 - 2013–2015  N= 210432 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   56-65 - 2016–2018  N= 217632 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   56-65 - 2019–2021  N= 183360 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   56-65 - 2022–2024  N= 244608 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   66+ - 2007–2009  N= 370560 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   66+ - 2010–2012  N= 473664 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   66+ - 2013–2015  N= 253632 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   66+ - 2016–2018  N= 269088 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   66+ - 2019–2021  N= 267840 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+   66+ - 2022–2024  N= 350112 
+kde2d_w: equal-weight identity with MASS::kde2d verified
+
+=== BASELINE MASS AUDIT ===
+# A tibble: 5 × 5
+  AgeGroup total_mass share_away_time share_home_time mean_dist
+  <fct>         <dbl>           <dbl>           <dbl>     <dbl>
+1 10-17             1          0.273            0.727     1.42 
+2 18-30             1          0.283            0.717     3.17 
+3 31-55             1          0.289            0.711     3.82 
+4 56-65             1          0.226            0.774     2.94 
+5 66+               1          0.0888           0.911     0.938
+
+=== YEAR-BIN MASS AUDIT ===
+# A tibble: 30 × 6
+   AgeGroup YearBin   total_mass share_away_time share_home_time mean_dist
+   <fct>    <fct>          <dbl>           <dbl>           <dbl>     <dbl>
+ 1 10-17    2007–2009          1          0.275            0.725     1.32 
+ 2 10-17    2010–2012          1          0.270            0.730     1.40 
+ 3 10-17    2013–2015          1          0.277            0.723     1.43 
+ 4 10-17    2016–2018          1          0.293            0.707     1.56 
+ 5 10-17    2019–2021          1          0.253            0.747     1.33 
+ 6 10-17    2022–2024          1          0.268            0.732     1.46 
+ 7 18-30    2007–2009          1          0.301            0.699     3.19 
+ 8 18-30    2010–2012          1          0.286            0.714     3.06 
+ 9 18-30    2013–2015          1          0.288            0.712     3.20 
+10 18-30    2016–2018          1          0.290            0.710     3.21 
+11 18-30    2019–2021          1          0.264            0.736     3.20 
+12 18-30    2022–2024          1          0.269            0.731     3.15 
+13 31-55    2007–2009          1          0.294            0.706     3.58 
+14 31-55    2010–2012          1          0.293            0.707     3.72 
+15 31-55    2013–2015          1          0.296            0.704     3.93 
+16 31-55    2016–2018          1          0.303            0.697     4.09 
+17 31-55    2019–2021          1          0.269            0.731     3.71 
+18 31-55    2022–2024          1          0.274            0.726     3.85 
+19 56-65    2007–2009          1          0.212            0.788     2.46 
+20 56-65    2010–2012          1          0.210            0.790     2.59 
+21 56-65    2013–2015          1          0.213            0.787     2.77 
+22 56-65    2016–2018          1          0.243            0.757     3.06 
+23 56-65    2019–2021          1          0.237            0.763     3.23 
+24 56-65    2022–2024          1          0.242            0.758     3.53 
+25 66+      2007–2009          1          0.0871           0.913     0.814
+26 66+      2010–2012          1          0.0844           0.916     0.857
+27 66+      2013–2015          1          0.0848           0.915     0.870
+28 66+      2016–2018          1          0.0936           0.906     1.03 
+29 66+      2019–2021          1          0.0887           0.911     1.04 
+30 66+      2022–2024          1          0.0922           0.908     0.974
+
+Writing outputs to:  C:\Users\rich\AppData\Local\Temp\Rtmpmy6VV6/step2_bw3/ 
+
+✓ Saved KDEs & audits to:
+   C:\Users\rich\AppData\Local\Temp\Rtmpmy6VV6/step2_bw3/ 
+
+Vedhæfter pakke: 'scales'
+
+Det følgende objekt er maskeret fra 'package:viridis':
+
+    viridis_pal
+
+
+ Baseline mass quantiles (as % of day per cell):
+    0%    50%    90%    95%    99%  99.5%  99.9%   100% 
+0.0000 0.0004 0.0069 0.0143 0.3208 0.8958 1.0394 1.0413 
+
+ Yearbin mass quantiles (as % of day per cell):
+    0%    50%    90%    95%    99%  99.5%  99.9%   100% 
+0.0000 0.0004 0.0070 0.0143 0.3126 0.8973 1.0396 1.0418 
+
+ Abs diff mass quantiles (as % of day per cell):
+    0%    50%    90%    95%    99%  99.5%  99.9%   100% 
+0.0000 0.0001 0.0008 0.0014 0.0045 0.0089 0.0327 0.1188 
+
+================================================================================
+✓ STEP 2 COMPLETE
+  - RDS: kde_baseline_by_cohort.rds, kde_yearbin_by_cohort.rds, kde_difference_by_cohort.rds, grid_mv_step2.rds
+  - CSV: audit_baseline.csv, audit_yearbin.csv, raw_grid_check.csv
+  - PNG: kde_baseline_by_cohort.png, kde_yearbin_by_cohort.png, kde_difference_by_cohort.png
+================================================================================
+
+
+=== Creating temporal profiles for Step 3 ===
+  Checking column names...
+    Baseline columns:  AgeGroup, t, d, density, mass 
+    Year-bin columns:  AgeGroup, YearBin, t, d, density, mass 
+    Using 'YearBin' column in yearbin_kde
+  Computing baseline temporal marginals...
+    Baseline:  480  rows,  5  age groups
+  Computing year-bin temporal marginals...
+    Year-bin:  2880  rows,  5  age groups,  6  year bins
+  Applying temporal smoothing...
+    ✓ Baseline smoothed
+    ✓ Year-bin smoothed
+  Saving temporal profiles...
+  ✓ temporal_baseline_away.rds
+  ✓ temporal_yearbin_away.rds
+
+  These files are now ready for Step 3!
+
+   AgeGroup   YearBin mean_hours_away_grid share_no_travel_grid
+1     10-17 2007–2009             7.399805                    0
+2     10-17 2010–2012             7.302868                    0
+3     10-17 2013–2015             7.393750                    0
+4     10-17 2016–2018             7.800934                    0
+5     10-17 2019–2021             6.829089                    0
+6     10-17 2022–2024             7.120745                    0
+7     18-30 2007–2009             7.415318                    0
+8     18-30 2010–2012             7.179111                    0
+9     18-30 2013–2015             7.156355                    0
+10    18-30 2016–2018             7.245666                    0
+
+Session 435086 time away:
+  Total away minutes: 375 
+  Total away hours: 6.25 
+# A tibble: 31 × 5
+   SessionId TimeMSM r_rad_km d_cum_km is_away
+       <int>   <dbl>    <dbl>    <dbl>   <int>
+ 1    435086     450      0       0          0
+ 2    435086     465      0       0          0
+ 3    435086     480      4.5     4.46       1
+ 4    435086     495      4.5     4.46       1
+ 5    435086     510      4.5     4.46       1
+ 6    435086     525      4.5     4.46       1
+ 7    435086     540      4.5     4.46       1
+ 8    435086     555      4.5     4.46       1
+ 9    435086     570      4.5     4.46       1
+10    435086     585      4.5     4.46       1
+11    435086     600      4.5     4.46       1
+12    435086     615      4.5     4.46       1
+13    435086     630      4.5     4.46       1
+14    435086     645      4.5     4.46       1
+15    435086     660      4.5     4.46       1
+16    435086     675      4.5     4.46       1
+17    435086     690      4.5     4.46       1
+18    435086     705      4.5     4.46       1
+19    435086     720      4.5     4.46       1
+20    435086     735      4.5     4.46       1
+21    435086     750      4.5     4.46       1
+22    435086     765      4.5     4.46       1
+23    435086     780      4.5     4.46       1
+24    435086     795      4.5     4.46       1
+25    435086     810      4.5     4.46       1
+26    435086     825      4.5     4.46       1
+27    435086     840      4.5     4.46       1
+28    435086     855      0       8.92       0
+29    435086     870      0       8.92       0
+30    435086     885      0       8.92       0
+31    435086     900      0       8.92       0
+
+Overall average hours away by age group:
+# A tibble: 5 × 2
+  AgeGroup avg_hrs_away
+  <chr>           <dbl>
+1 10-17            7.34
+2 18-30            7.03
+3 31-55            7.10
+4 56-65            5.48
+5 66+              2.27
+
+Raw grid hours away (should match overall_check):
+   AgeGroup   YearBin mean_hours_away_grid share_no_travel_grid
+1     10-17 2007–2009             7.399805                    0
+7     18-30 2007–2009             7.415318                    0
+13    31-55 2007–2009             7.225410                    0
+19    56-65 2007–2009             5.228647                    0
+25      66+ 2007–2009             2.265997                    0
+
+Wrote 6 kernel files to data/kernels/bw3 
+Advarselsbesked:
+lukker ubrugt RODBC-håndtag 1 

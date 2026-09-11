@@ -1,0 +1,48 @@
+
+=== STEP 11: DEPARTURE FROM PRE-PANDEMIC TREND ===
+
+  Sessions: 115,338 
+
+Preparing 30 age-period cells...
+   30 of 30 cells prepared
+
+Running 500 bootstrap replicates...
+    replicate 50 / 500 
+    replicate 100 / 500 
+    replicate 150 / 500 
+    replicate 200 / 500 
+    replicate 250 / 500 
+    replicate 300 / 500 
+    replicate 350 / 500 
+    replicate 400 / 500 
+    replicate 450 / 500 
+    replicate 500 / 500 
+  Bootstrap complete
+
+  covid_departure.csv saved
+ AgeGroup    metric dep_1921 dep_1921_lo dep_1921_hi sig_1921 dep_2224
+    10-17 frac_away   -4.134      -5.244      -3.032     TRUE   -3.195
+    18-30 frac_away   -1.905      -3.100      -0.565     TRUE   -1.179
+    31-55 frac_away   -3.488      -4.339      -2.671     TRUE   -3.244
+    56-65 frac_away   -0.636      -2.055       0.577    FALSE   -1.098
+      66+ frac_away   -0.366      -1.195       0.406    FALSE   -0.225
+    10-17 mean_dist   -0.153      -0.806       0.480    FALSE   -0.182
+    18-30 mean_dist    0.753      -0.339       1.884    FALSE    0.213
+    31-55 mean_dist   -0.267      -0.985       0.390    FALSE   -0.496
+    56-65 mean_dist    0.290      -0.911       1.480    FALSE    0.857
+      66+ mean_dist    0.057      -1.448       1.544    FALSE   -1.512
+ dep_2224_lo dep_2224_hi sig_2224
+      -4.435      -2.022     TRUE
+      -2.474       0.345    FALSE
+      -4.195      -2.305     TRUE
+      -2.860       0.416    FALSE
+      -1.052       0.696    FALSE
+      -0.768       0.470    FALSE
+      -1.074       1.350    FALSE
+      -1.292       0.227    FALSE
+      -0.632       2.298    FALSE
+      -3.206       0.314    FALSE
+  table_s4_covid_departure.tex saved
+
+=== STEP 11 COMPLETE ===
+

@@ -1,0 +1,60 @@
+
+=== STEP 8: BOOTSTRAP ARROW-FAN UNCERTAINTY (R2 VERSION) ===
+
+Scenario   : sex2 
+Replicates : 500 
+
+Loading step 4 KDE-based point estimates...
+  ✓ KDE drift vectors (full) loaded
+  ✓ KDE drift vectors (pre-pandemic) loaded
+
+Loading grid_mv_step2.rds...
+  ✓ Loaded: 5,668,512 rows, 59,047 sessions
+
+Precomputing per-cell KDE structures for the Eq. (7) bootstrap...
+  OK 30 of 30 age-period cells prepared
+
+Running 500 bootstrap replicates (Full Scenario)...
+    replicate 50 / 500 
+    replicate 100 / 500 
+    replicate 150 / 500 
+    replicate 200 / 500 
+    replicate 250 / 500 
+    replicate 300 / 500 
+    replicate 350 / 500 
+    replicate 400 / 500 
+    replicate 450 / 500 
+    replicate 500 / 500 
+  OK Full Scenario Bootstrap complete
+
+Running 500 bootstrap replicates (Pre-Pandemic)...
+  OK Pre-Pandemic Bootstrap complete
+
+  ✓ bootstrap_summary.csv saved
+  ✓ prepandemic_drift_summary.csv saved
+  ✓ prepandemic_drift_replicates.csv saved
+
+--- Pre-pandemic drift (2007-2009 to 2016-2018) ---
+ AgeGroup      dx   dx_lo  dx_hi dx_significant      dy   dy_lo  dy_hi
+    10-17  0.0144  0.0026 0.0262           TRUE  6.1729 -0.3358 6.9526
+    18-30 -0.0057 -0.0204 0.0093          FALSE -1.7272 -2.9770 1.3025
+    31-55  0.0061 -0.0020 0.0135          FALSE  0.9074  0.1129 2.2780
+    56-65  0.0359  0.0211 0.0501           TRUE  0.9149 -0.4576 4.6266
+      66+  0.0075 -0.0007 0.0151          FALSE  2.4871  0.0477 3.7457
+ dy_significant
+          FALSE
+          FALSE
+           TRUE
+          FALSE
+           TRUE
+
+Creating Figure_R2_6a.png...
+  exported as drift_vectors_females.png 
+  ✓ Figure_R2_6a.png saved to Overleaf and results
+Creating Figure_R2_S8.png...
+  ✓ Figure_R2_S8.png saved to Overleaf and results
+Creating diagnostic % change distribution plot...
+  ✓ bootstrap_pct_change.png saved
+
+=== STEP 8 COMPLETE: Bootstrap Arrow-Fan Uncertainty (R2 Version) ===
+
